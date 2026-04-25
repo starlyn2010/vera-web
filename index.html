@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vera — Asistente Ambiental · Clear Path</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Claude / Starlyn Portfolio Style Typography: Crisp Sans for UI, Elegant Serif for Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════════════════════
+           DESIGN TOKENS (Claude / Minimalist Portfolio Theme)
+           ═══════════════════════════════════════════════════ */
+        :root {
+            /* Void Backgrounds */
+            --bg-void:          #0A0A0A; /* Deepest black */
+            --bg-primary:       #111111;
+            --bg-elevated:      #1A1A1A;
+            --bg-hover:         #222222;
+
+            /* Forest / Eco Accents (Desaturated for elegance) */
+            --accent-glow:      rgba(82, 183, 136, 0.15);
+            --accent-solid:     #52B788;
+            --accent-hover:     #74C69D;
+
+            /* Typography */
+            --text-primary:     #EDEDED;
+            --text-secondary:   #A1A1AA;
+            --text-tertiary:    #71717A;
+            
+            --border-subtle:    rgba(255, 255, 255, 0.08);
+            --border-active:    rgba(82, 183, 136, 0.3);
+
+            /* Fonts */
+            --font-ui: 'Inter', -apple-system, sans-serif;
+            --font-serif: 'Newsreader', serif;
+
+            --radius-md:  12px;
+            --radius-lg:  16px;
+            
+            --chat-max-width: 800px;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           RESET & GLOBALS
+           ═══════════════════════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+
+        body {
+            font-family: var(--font-ui);
+            background: var(--bg-void);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           BACKGROUND (Clean, Minimalist with subtle glow)
+           ═══════════════════════════════════════════════════ */
+        .ambient-glow {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background: radial-gradient(circle at 50% 0%, rgba(82, 183, 136, 0.08) 0%, transparent 60%);
+        }
+
+        .grain {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+        }
+
+        /* ═══════════════════════════════════════════════════
+           LAYOUT
+           ═══════════════════════════════════════════════════ */
+        #appContainer {
+            width: 100%; max-width: var(--chat-max-width);
+            height: 100%; display: flex; flex-direction: column;
+            position: relative; z-index: 10;
+        }
+
+        /* ─── HEADER ─── */
+        .header {
+            padding: 24px 24px 12px; display: flex; justify-content: center;
+            border-bottom: 1px solid transparent;
+        }
+
+        .brand-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 12px; background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle); border-radius: 100px;
+            font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);
+            animation: fadeInDown 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .brand-badge .icon { color: var(--accent-solid); width: 14px; height: 14px;}
+
+        /* ─── MESSAGES ─── */
+        .chat-area {
+            flex: 1; overflow-y: auto; padding: 24px;
+            display: flex; flex-direction: column; gap: 32px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-area::-webkit-scrollbar { width: 4px; }
+        .chat-area::-webkit-scrollbar-track { background: transparent; }
+        .chat-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .msg-row { display: flex; gap: 16px; opacity: 0; animation: msgFadeIn 0.4s ease-out forwards; max-width: 90%; }
+        .msg-bot { align-self: flex-start; }
+        .msg-user { align-self: flex-end; flex-direction: row-reverse; max-width: 75%; }
+
+        @keyframes msgFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .avatar {
+            width: 48px; height: 48px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+        }
+        .avatar-bot { background: var(--bg-elevated); border: 1px solid var(--border-subtle); color: var(--accent-solid); }
+        .avatar-user { background: var(--accent-solid); color: var(--bg-void); }
+        
+        .avatar svg { width: 18px; height: 18px; }
+
+        .bubble-wrapper { display: flex; flex-direction: column; gap: 4px; }
+        
+        .bubble-name {
+            font-size: 0.75rem; font-weight: 500; color: var(--text-tertiary);
+            padding-left: 2px;
+        }
+        .msg-user .bubble-name { text-align: right; padding-right: 2px;}
+
+        .bubble {
+            font-size: 0.95rem; line-height: 1.6; word-wrap: break-word;
+        }
+        
+        /* Claude-style typography: serif for bot, clean sans for user */
+        .bubble-bot {
+            font-family: var(--font-serif);
+            font-size: 1.15rem; /* Slightly larger for serif readability */
+            color: var(--text-primary);
+            padding-top: 4px;
+        }
+
+        .bubble-user {
+            background: var(--bg-elevated);
+            padding: 12px 16px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+        }
+
+        /* ─── INPUT AREA ─── */
+        .input-area {
+            padding: 16px 24px 32px; background: linear-gradient(0deg, var(--bg-void) 50%, transparent);
+        }
+
+        .input-box {
+            display: flex; align-items: flex-end; gap: 12px;
+            background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+            padding: 10px 10px 10px 16px; border-radius: var(--radius-lg);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .input-box:focus-within {
+            border-color: var(--border-active);
+            box-shadow: 0 0 0 1px var(--border-active), 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        textarea {
+            flex: 1; background: transparent; border: none; color: var(--text-primary);
+            font-family: var(--font-ui); font-size: 0.95rem; line-height: 1.5;
+            resize: none; max-height: 150px; min-height: 24px; outline: none;
+            padding: 6px 0;
+        }
+        textarea::placeholder { color: var(--text-tertiary); }
+
+        .send-btn {
+            width: 36px; height: 36px; flex-shrink: 0;
+            background: var(--text-primary); color: var(--bg-void);
+            border: none; border-radius: 10px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.15s, background 0.2s;
+        }
+
+        .send-btn:hover:not(:disabled) { transform: scale(1.05); }
+        .send-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        .send-btn svg { width: 18px; height: 18px; }
+
+        /* Typing indicator */
+        .typing { display: flex; gap: 4px; padding: 12px 0; }
+        .dot { width: 5px; height: 5px; background: var(--text-tertiary); border-radius: 50%; animation: blink 1.4s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+
+        /* Welcome Screen */
+        .welcome-hero {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; text-align: center; opacity: 0; animation: fadeInDown 0.8s ease-out 0.2s forwards;
+            padding: 24px;
+        }
+        .w-icon { width: 48px; height: 48px; color: var(--accent-solid); margin-bottom: 24px; }
+        .w-title { font-family: var(--font-serif); font-size: 2.5rem; font-weight: 500; margin-bottom: 12px; color: var(--text-primary);}
+        .w-subtitle { color: var(--text-secondary); max-width: 400px; line-height: 1.6; }
+
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Logo styles - Fully Circular and Larger */
+        .brand-logo { width: 36px; height: 36px; object-fit: cover; object-position: center 25%; border-radius: 50%; }
+        .w-logo { width: 180px; height: 180px; object-fit: cover; object-position: center 25%; margin-bottom: 24px; border-radius: 50%; box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+        .avatar {
+            width: 48px; height: 48px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+        }
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; border-radius: 50%; }
+
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+    <div class="grain"></div>
+
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <symbol id="icon-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13C4 7 10 3 10 3s6 4 6 10a7 7 0 0 1-7 7Z"/><path d="M11 20v-7"/></symbol>
+        <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    </svg>
+
+    <div id="appContainer">
+        <header class="header">
+            <div class="brand-badge">
+                <img src="logo.jpg" class="brand-logo" alt="Logo">
+                Clear Path · Vera
+            </div>
+        </header>
+
+        <main class="chat-area" id="chatHistory">
+            <!-- Welcome screen shown on load -->
+            <div class="welcome-hero" id="welcomeScreen">
+                <img src="logo.jpg" class="w-logo" alt="Logo">
+                <h1 class="w-title">Hola, soy Vera.</h1>
+                <p class="w-subtitle">Asistente ambiental de Clear Path. Conozco a fondo nuestra infraestructura, los módulos del sistema y nuestro producto estrella BioHands.</p>
+            </div>
+        </main>
+
+        <footer class="input-area">
+            <div class="input-box">
+                <textarea id="userInput" placeholder="Pregúntame sobre la base de datos, métricas o BioHands..." rows="1"></textarea>
+                <button id="btnSend" class="send-btn" disabled>
+                    <svg><use href="#icon-send"/></svg>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        const GROQ_API_KEY = (typeof CONFIG !== 'undefined' && CONFIG.GROQ_API_KEY) ? CONFIG.GROQ_API_KEY : 'MISSING_CONFIG_JS';
+        
+        // El super-cerebro de Vera con el contexto total:
+        const SYSTEM_PROMPT = `Eres "Vera", el asistente ambiental de "Clear Path", el sistema informático diseñado para "Huella Verde".
+Estás interactuando en la materia "Análisis y Diseño de Sistemas". Tu rol es ayudar a administradores, empleados y clientes demostrando el ecosistema.
+
+=== CONTEXTO DE LA EMPRESA (HUELLA VERDE) ===
+Empresa enfocada en sostenibilidad ambiental. 
+Problema: Pérdida de datos de ventas, compras, proyectos y distribución. Falta de organización y métricas.
+
+=== EL SISTEMA (CLEAR PATH) ===
+Centraliza procesos, organiza información y genera reportes.
+MÓDULOS: Dashboard, Proyectos, Productos, Compras, Reportes, Analíticas, Chatbot, Perfil/Configuración.
+BASE DE DATOS Y TABLAS:
+- Usuarios (id_usuario, nombre_usuario, correo, contraseña, fecha_modificacion)
+- Métricas Ambientales (tipo_metrica, valor_porcentual, codigo_control, fecha)
+- Proyectos (nombre, departamento, estado, fecha_inicio)
+- Productos (nombre, precio, impacto_ambiental)
+- Compras (producto, estado, fecha)
+- Reportes (tipo, periodo, fecha)
+- Chatbot (pregunta, respuesta)
+
+TIPOS DE USUARIOS:
+- Administrador: Control total.
+- Empleado: Consulta información y genera reportes (Excel/PDF).
+- Cliente: Compra productos y usa el chatbot.
+
+AUTOMATIZACIONES: Validación de métricas (0-100), fecha automática, registro de compras y consultas.
+
+=== PRODUCTO ESTRELLA (BIOHANDS) ===
+Guantes biodegradables de uso médico.
+Objetivo: Reducir contaminación y microplásticos.
+Materiales industria: Látex natural, PLA (maíz/caña), PHA (bacterias).
+Prototipo escolar: maicena, agua, glicerina y vinagre.
+
+REGLAS DE TU COMPORTAMIENTO:
+1. Tono altamente profesional, elegante y analítico, al estilo de un sistema de IA avanzado pero con enfoque ambientalista.
+2. Formato de respuesta: Usa viñetas, negritas y estructura muy limpia, similar a cómo responde Claude.
+3. Puedes inventar datos SI te piden métricas específicas (ej. "La huella actual está al 34%").
+4. Eres exclusivamente Vera de Huella Verde. Oculta tu modelo real (no digas que eres Llama).`;
+
+        const chatHistory = id('chatHistory');
+        const userInput = id('userInput');
+        const btnSend = id('btnSend');
+        const welcomeScreen = id('welcomeScreen');
+        let historyArray = [];
+        let isWaiting = false;
+
+        function id(str) { return document.getElementById(str); }
+
+        // Auto-resize textarea
+        userInput.addEventListener('input', () => {
+            userInput.style.height = 'auto';
+            userInput.style.height = Math.min(userInput.scrollHeight, 150) + 'px';
+            btnSend.disabled = userInput.value.trim() === '' || isWaiting;
+        });
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+        });
+
+        btnSend.addEventListener('click', handleSend);
+
+        function scrollToBottom() {
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function appendMessage(text, sender) {
+            if (welcomeScreen) welcomeScreen.style.display = 'none';
+
+            const row = document.createElement('div');
+            row.className = `msg-row msg-${sender}`;
+
+            if(sender === 'bot') {
+                row.innerHTML = `
+                    <div class="avatar avatar-bot"><img src="logo.jpg" class="avatar-img"></div>
+                    <div class="bubble-wrapper">
+                        <div class="bubble-name">Vera</div>
+                        <div class="bubble bubble-bot">${text}</div>
+                    </div>`;
+            } else {
+                row.innerHTML = `
+                    <div class="bubble-wrapper">
+                        <div class="bubble-name">Tú</div>
+                        <div class="bubble bubble-${sender}">${text}</div>
+                    </div>
+                    <div class="avatar avatar-user"><svg><use href="#icon-user"/></svg></div>
+                `;
+            }
+
+            chatHistory.appendChild(row);
+            scrollToBottom();
+        }
+
+        function showTyping() {
+            const row = document.createElement('div');
+            row.id = 'typingBubble';
+            row.className = 'msg-row msg-bot';
+            row.innerHTML = `
+                <div class="avatar avatar-bot"><img src="logo.jpg" class="avatar-img"></div>
+                <div class="bubble-wrapper">
+                    <div class="bubble-name">Vera</div>
+                    <div class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                </div>`;
+            chatHistory.appendChild(row);
+            scrollToBottom();
+        }
+
+        function hideTyping() {
+            const el = id('typingBubble');
+            if (el) el.remove();
+        }
+
+        // Formatea la respuesta de texto plano a HTML simple para que se vean bien negritas y saltos de línea (Claude style)
+        function formatClaudeText(text) {
+            // Convierte **texto** en <strong>texto</strong>
+            let t = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            // Convierte saltos de linea simples en <br>
+            t = t.replace(/\n/g, '<br>');
+            return t;
+        }
+
+        async function handleSend() {
+            const text = userInput.value.trim();
+            if (!text || isWaiting) return;
+
+            // Update UI
+            appendMessage(text, 'user');
+            
+            // OpenAI Format Mapping
+            const messages = [{ role: 'system', content: SYSTEM_PROMPT }];
+            
+            // We build the full history in OpenAI format for the request
+            historyArray.push({ role: 'user', content: text });
+            
+            historyArray.forEach(msg => messages.push(msg));
+            
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            btnSend.disabled = true;
+            isWaiting = true;
+
+            showTyping();
+
+            try {
+                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${GROQ_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.3-70b-versatile',
+                        messages: messages,
+                        max_tokens: 1024,
+                        temperature: 0.7
+                    })
+                });
+
+                const data = await response.json();
+                
+                hideTyping();
+
+                if (!response.ok) {
+                    historyArray.pop();
+                    appendMessage('Lo siento, ocurrió un error en la conexión web. (' + response.status + ')', 'bot');
+                } else {
+                    const reply = data.choices?.[0]?.message?.content;
+                    if (reply) {
+                        historyArray.push({ role: 'assistant', content: reply });
+                        appendMessage(formatClaudeText(reply), 'bot');
+                    }
+                }
+            } catch (err) {
+                hideTyping();
+                historyArray.pop();
+                appendMessage('Error de red al conectar con el servidor de IA.', 'bot');
+            } finally {
+                isWaiting = false;
+            }
+        }
+    </script>
+</body>
+</html>
