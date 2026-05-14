@@ -13,32 +13,34 @@ from dotenv import load_dotenv
 # Load env BEFORE any imports that read env vars
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
-import logging
-# Configure logging to both file and console
-# Create logs directory if it doesn't exist
-logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
-if not os.path.exists(logs_dir):
-    try:
-        os.makedirs(logs_dir)
-    except:
-        # Fallback to local if root logs fails (e.g. permissions)
-        logs_dir = os.path.dirname(__file__)
-
-log_file = os.path.join(logs_dir, "server_py.log")
-from logging.handlers import RotatingFileHandler
-log_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
-# Max 5MB per file, keep 3 backups
-file_handler = RotatingFileHandler(log_file, maxBytes=5*1024*1024, backupCount=3)
-file_handler.setFormatter(log_formatter)
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(log_formatter)
-
+# Configure logging
+is_vercel = os.getenv("VERCEL")
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-logger.addHandler(file_handler)
+
+log_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(log_formatter)
 logger.addHandler(stream_handler)
 
-logging.info(f"Backend starting... (Logs: {log_file})")
+if not is_vercel:
+    # Create logs directory if it doesn't exist
+    logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+    if not os.path.exists(logs_dir):
+        try:
+            os.makedirs(logs_dir)
+        except:
+            logs_dir = os.path.dirname(__file__)
+
+    log_file = os.path.join(logs_dir, "server_py.log")
+    from logging.handlers import RotatingFileHandler
+    # Max 5MB per file, keep 3 backups
+    file_handler = RotatingFileHandler(log_file, maxBytes=5*1024*1024, backupCount=3)
+    file_handler.setFormatter(log_formatter)
+    logger.addHandler(file_handler)
+    logging.info(f"Backend starting... (Logs: {log_file})")
+else:
+    logging.info("Backend starting on Vercel (Stdout only)")
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware

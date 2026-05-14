@@ -6,7 +6,8 @@
       "use": "@vercel/static-build",
       "config": {
         "distDir": "client/dist",
-        "installCommand": "npm install && cd client && npm install"
+        "installCommand": "cd client && npm install",
+        "buildCommand": "npm run build"
       }
     },
     {
@@ -18,10 +19,6 @@
     {
       "source": "/api/(.*)",
       "destination": "api/index.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
     },
     {
       "source": "/(.*)",

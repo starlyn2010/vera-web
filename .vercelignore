@@ -1,0 +1,12 @@
+node_modules
+.git
+.vercel
+dist_electron
+client/dist
+logs
+server_py/venv
+server_py/__pycache__
+api/__pycache__
+*.log
+database/*.db
+!database/static_demo.db

@@ -12,7 +12,16 @@ from functools import partial
 DB_PATH: str = os.getenv("DB_PATH", "../database/clearpath.db")
 
 _base = os.path.dirname(os.path.abspath(__file__))
-_resolved_db = os.path.normpath(os.path.join(_base, DB_PATH))
+
+# On Vercel, prefer static_demo.db if it exists
+if os.getenv("VERCEL"):
+    _static_db = os.path.normpath(os.path.join(_base, "..", "database", "static_demo.db"))
+    if os.path.exists(_static_db):
+        _resolved_db = _static_db
+    else:
+        _resolved_db = os.path.normpath(os.path.join(_base, DB_PATH))
+else:
+    _resolved_db = os.path.normpath(os.path.join(_base, DB_PATH))
 
 
 def get_db_path() -> str:
@@ -20,7 +29,13 @@ def get_db_path() -> str:
 
 
 def _get_sync_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(_resolved_db)
+    # On Vercel, use read-only mode if the file exists
+    if os.getenv("VERCEL"):
+        db_uri = f"file:{_resolved_db}?mode=ro"
+        conn = sqlite3.connect(db_uri, uri=True)
+    else:
+        conn = sqlite3.connect(_resolved_db)
+    
     conn.row_factory = sqlite3.Row
     
     # On Vercel, WAL mode might fail on a read-only filesystem
@@ -35,6 +50,11 @@ def _get_sync_connection() -> sqlite3.Connection:
 
 def init_schema_sync() -> None:
     """Run schema init synchronously at startup."""
+    # Skip migrations on Vercel as it's a read-only filesystem
+    if os.getenv("VERCEL"):
+        print("Vercel detected: Skipping database schema initialization (read-only).")
+        return
+
     schema_path = os.path.normpath(os.path.join(_base, "..", "database", "schema_sqlite.sql"))
     if not os.path.exists(schema_path):
         print(f"Schema file not found at {schema_path}")

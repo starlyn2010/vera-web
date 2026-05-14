@@ -10,8 +10,10 @@ import { useAuth } from '../context/AuthContext';
 import Dialog from '../components/Dialog';
 
 // Build the public verification URL for QR codes
+// Build the public verification URL for QR codes
 const getVerifyUrl = (reportId) => {
-    const base = typeof window !== 'undefined' ? window.location.origin : '';
+    // Hardcoded production URL for real-world functionality
+    const base = 'https://jud-inky.vercel.app';
     return `${base}/verify/${reportId}`;
 };
 

@@ -27,6 +27,9 @@
     "files": [
       "electron/**/*",
       "server_py/**/*",
+      "!server_py/venv${/*}",
+      "!server_py/__pycache__${/*}",
+      "!server_py/scripts${/*}",
       "database/**/*",
       "client/dist/**/*",
       "package.json"
@@ -36,7 +39,7 @@
         "nsis",
         "portable"
       ],
-      "icon": "client/public/logo.jpeg"
+      "icon": "client/public/logo.png"
     }
   }
 }

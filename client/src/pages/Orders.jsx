@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ArrowUpRight, Ban, Calendar, CreditCard, Download, Loader2, Package, Plus, Search, ShoppingBag, Trash2, User } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import gsap from 'gsap';
 import html2pdf from 'html2pdf.js';
 import api from '../services/api';
@@ -8,6 +9,13 @@ import Dialog from '../components/Dialog';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { assetUrl } from '../utils/assetUrl';
+
+// Build the public verification URL for QR codes
+const getVerifyUrl = (id) => {
+    // Hardcoded production URL for real-world functionality
+    const base = 'https://jud-inky.vercel.app';
+    return `${base}/verify/${id}`;
+};
 
 const getInvoiceItemImage = (item) => {
     const imageUrl = typeof item?.imagen_url === 'string' ? item.imagen_url.trim() : '';
@@ -373,8 +381,21 @@ const Orders = () => {
                         </div>
                     </div>
 
-                    <div className="mt-auto pt-10 text-[9px] text-gray-400 font-bold uppercase tracking-widest">
-                        Factura generada por Clear Path · Huella Verde
+                    <div className="mt-auto pt-10 border-t border-gray-100 flex justify-between items-center">
+                        <div className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">
+                            Factura generada por Clear Path · Huella Verde
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                            <QRCodeSVG
+                                value={getVerifyUrl(invoiceOrder?.id_pedido || 'preview')}
+                                size={60}
+                                bgColor="#ffffff"
+                                fgColor="#0D1712"
+                                level="M"
+                                includeMargin={false}
+                            />
+                            <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest">Escanear para verificar</span>
+                        </div>
                     </div>
                 </div>
             </div>
