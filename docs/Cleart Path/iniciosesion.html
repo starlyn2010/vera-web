@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cleart Path</title>
+    <link rel="stylesheet" href="Csssesion.css">
+</head>
+<body>
+    <div class="formulario">
+        <h1>Inicio de sesión</h1>
+        <form id="form-inicio">
+            <div class="username">
+                <input type="text" required placeholder=" " id="usuario" name="usuario">
+                <label for="usuario">Nombre de usuario</label>
+            </div>
+            <div class="correo">
+                <input type="email" required placeholder=" " id="correo" name="correo">
+                <label for="correo"> Correo</label>
+            </div>
+            <div class="contraseña">
+                <input type="password" required placeholder=" " id="clave" name="clave">
+                <label for="clave">Contraseña</label>
+            </div>
+
+            <div class="recordar">
+                <a href="#">¿Olvidó su Contraseña?</a>
+            </div>
+
+            <a href="CleartPath.html" class="boton-registro" id="enlaceIniciar">Iniciar</a>
+
+            <div class="registrarse">
+                Quiero hacer el <a href="registro.html">Registro</a>
+            </div>
+            <div id="error-inicio" style="color:#b3002d; margin-top:8px; text-align:center;"></div>
+        </form>
+    </div>
+    <script>
+    document.getElementById('enlaceIniciar').addEventListener('click', function(e) {
+        const usuario = document.getElementById('usuario').value.trim();
+        const clave = document.getElementById('clave').value.trim();
+        const error = document.getElementById('error-inicio');
+        
+        const usuarioGuardado = localStorage.getItem('usuario');
+        const passGuardado = localStorage.getItem('pass');
+        const correoGuardado =localStorage.getItem('correo');
+        if (!usuario || !clave) {
+            e.preventDefault();
+            error.textContent = 'Por favor, completa todos los campos.';
+            return;
+        }
+        if (usuario !== usuarioGuardado || clave !== passGuardado) {
+            e.preventDefault();
+            error.textContent = 'Usuario o contraseña incorrectos.';
+            return;
+        }
+        error.textContent = '';
+        
+    });
+    </script>
+</body>
+</html>

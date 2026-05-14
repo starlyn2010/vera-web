@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root, .dark {
+    /* ─── CORE BLACKS (Forest Night) ─── */
+    --bg-void:          hsl(160, 30%, 4%);     /* #080F0B — deepest background */
+    --bg-primary:       hsl(157, 28%, 7%);     /* #0D1712 — main surface */
+    --bg-elevated:      hsl(155, 22%, 11%);    /* #161F1A — cards, panels */
+    --bg-hover:         hsl(153, 20%, 14%);    /* #1C2823 — hover states */
+
+    /* HSL triplets (Tailwind alpha-safe) */
+    --bg-void-hsl:      160 30% 4%;
+    --bg-primary-hsl:   157 28% 7%;
+    --bg-elevated-hsl:  155 22% 11%;
+    --bg-hover-hsl:     153 20% 14%;
+
+    /* ─── GREENS (Bioluminescent Scale) ─── */
+    --green-900:        hsl(158, 40%, 15%);    /* deep moss */
+    --green-900-hsl:    158 40% 15%;
+    --green-700-hsl:    155 45% 25%;
+    --green-500-hsl:    152 55% 40%;
+    --green-400-hsl:    150 60% 52%;
+    --green-300-hsl:    148 55% 65%;
+    --green-200-hsl:    145 50% 78%;
+    --green-100-hsl:    142 40% 90%;
+    --green-glow-hsl:   150 80% 55%;
+
+    --green-900:        hsl(var(--green-900-hsl));
+    --green-700:        hsl(var(--green-700-hsl));
+    --green-500:        hsl(var(--green-500-hsl));
+    --green-400:        hsl(var(--green-400-hsl));
+    --green-300:        hsl(var(--green-300-hsl));
+    --green-200:        hsl(var(--green-200-hsl));
+    --green-100:        hsl(var(--green-100-hsl));
+    --green-glow:       hsl(var(--green-glow-hsl));
+
+    /* ─── NEUTRALS ─── */
+    --text-primary-hsl:   140 10% 93%;
+    --text-secondary-hsl: 150 8% 62%;
+    --text-tertiary-hsl:  155 6% 42%;
+
+    --text-primary:     hsl(var(--text-primary-hsl));
+    --text-secondary:   hsl(var(--text-secondary-hsl));
+    --text-tertiary:    hsl(var(--text-tertiary-hsl));
+
+    --border-subtle:    hsla(150, 30%, 40%, 0.12);
+    --border-active:    hsla(150, 60%, 52%, 0.25);
+
+    /* ─── GLASS ─── */
+    --glass-bg:         hsla(155, 20%, 12%, 0.6);
+    --glass-border:     hsla(150, 40%, 50%, 0.1);
+    --glass-blur:       blur(32px);
+}
+
+.light {
+    --bg-void-hsl:      160 20% 98%;
+    --bg-primary-hsl:   157 20% 95%;
+    --bg-elevated-hsl:  0 0% 100%;
+    --bg-hover-hsl:     153 10% 90%;
+
+    --bg-void:          hsl(var(--bg-void-hsl));
+    --bg-primary:       hsl(var(--bg-primary-hsl));
+    --bg-elevated:      hsl(var(--bg-elevated-hsl));
+    --bg-hover:         hsl(var(--bg-hover-hsl));
+
+    --green-900-hsl:    158 40% 85%;
+    --green-700-hsl:    155 45% 75%;
+    --green-500-hsl:    152 55% 45%;
+    --green-400-hsl:    150 60% 42%;
+    --green-300-hsl:    148 55% 35%;
+    --green-200-hsl:    145 50% 28%;
+    --green-100-hsl:    142 40% 10%;
+    --green-glow-hsl:   150 80% 45%;
+
+    --green-900:        hsl(var(--green-900-hsl));
+    --green-700:        hsl(var(--green-700-hsl));
+    --green-500:        hsl(var(--green-500-hsl));
+    --green-400:        hsl(var(--green-400-hsl));
+    --green-300:        hsl(var(--green-300-hsl));
+    --green-200:        hsl(var(--green-200-hsl));
+    --green-100:        hsl(var(--green-100-hsl));
+    --green-glow:       hsl(var(--green-glow-hsl));
+
+    --text-primary-hsl:   160 30% 12%;
+    --text-secondary-hsl: 150 15% 30%;
+    --text-tertiary-hsl:  155 15% 45%;
+
+    --text-primary:     hsl(var(--text-primary-hsl));
+    --text-secondary:   hsl(var(--text-secondary-hsl));
+    --text-tertiary:    hsl(var(--text-tertiary-hsl));
+
+    --border-subtle:    hsla(150, 30%, 10%, 0.08);
+    --border-active:    hsla(150, 60%, 42%, 0.2);
+
+    --glass-bg:         hsla(155, 20%, 100%, 0.7);
+    --glass-border:     hsla(150, 40%, 20%, 0.1);
+    --glass-blur:       blur(16px);
+}
+
+:root {
+    /* ─── RADIUS ─── */
+    --radius-sm:  8px;
+    --radius-md:  14px;
+    --radius-lg:  20px;
+    --radius-xl:  28px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-void);
+    color: var(--text-primary);
+    font-family: 'Lexend', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+}
+
+input, textarea, select {
+    color: var(--text-primary);
+    background-color: transparent;
+}
+
+::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+}
+
+.text-accent {
+    color: var(--green-400);
+}
+
+/* Premium Agency Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-void);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsla(150, 60%, 52%, 0.15);
+  border-radius: 10px;
+  border: 2px solid var(--bg-void);
+  transition: all 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green-400);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-reveal {
+    animation: fadeIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}

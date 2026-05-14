@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Panel de control accesible y responsive para gestionar cuenta, proyectos y reportes.">
+  <title>Clear Path | Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#contenido-principal">Saltar al contenido</a>
+
+  <div class="layout">
+    <aside class="sidebar" aria-label="Navegacion principal">
+      <div class="brand">
+        <p class="eyebrow">Workspace</p>
+        <h1>Clear Path</h1>
+      </div>
+
+      <nav>
+        <ul class="nav-list">
+          <li><button class="nav-btn" data-section="dashboard">Dashboard</button></li>
+          <li><button class="nav-btn" data-section="projects">Projects</button></li>
+          <li><button class="nav-btn" data-section="reports">Reports</button></li>
+          <li><button class="nav-btn" data-section="analytics">Analytics</button></li>
+          <li><button class="nav-btn active" data-section="settings" aria-current="page">Settings</button></li>
+        </ul>
+      </nav>
+
+      <hr>
+
+      <ul class="nav-list nav-list-secondary" aria-label="Acciones secundarias">
+        <li><button class="nav-btn" data-section="products">Products</button></li>
+        <li><button class="nav-btn" data-section="orders">Orders</button></li>
+        <li><button class="nav-btn danger-ghost" id="closeAccount">Close Account</button></li>
+        <li><button class="nav-btn">Help</button></li>
+        <li><button class="nav-btn">Log Out</button></li>
+      </ul>
+    </aside>
+
+    <main class="main" id="contenido-principal" tabindex="-1">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow" id="sectionTag">Control</p>
+          <h2 id="pageTitle">Settings</h2>
+          <p class="subtitle" id="pageSubtitle">Preferencias de cuenta, seguridad y notificaciones.</p>
+        </div>
+
+        <div class="header-actions">
+          <button id="themeToggle" class="btn-secondary" type="button" aria-pressed="false">Modo oscuro</button>
+          <button id="saveSettingsBtn" class="btn-primary" type="button">Guardar cambios</button>
+        </div>
+      </header>
+
+      <p id="announcer" class="sr-only" aria-live="polite"></p>
+      <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
+
+      <section id="dashboard" class="panel" aria-labelledby="pageTitle" hidden>
+        <article class="card placeholder-card">
+          <h3>Dashboard (equipo)</h3>
+          <p>Deja aqui los links/rutas que conectara tu companero.</p>
+          <ul class="placeholder-links">
+            <li><a href="#" aria-disabled="true">/dashboard</a></li>
+            <li><a href="#" aria-disabled="true">Componente principal</a></li>
+            <li><a href="#" aria-disabled="true">Acciones rapidas</a></li>
+          </ul>
+        </article>
+      </section>
+
+      <section id="projects" class="panel" hidden>
+        <article class="card placeholder-card">
+          <h3>Projects (equipo)</h3>
+          <p>Espacio reservado para enlaces de Projects.</p>
+          <ul class="placeholder-links">
+            <li><a href="#" aria-disabled="true">/projects</a></li>
+            <li><a href="#" aria-disabled="true">Listado de proyectos</a></li>
+            <li><a href="#" aria-disabled="true">Detalle de proyecto</a></li>
+          </ul>
+        </article>
+      </section>
+
+      <section id="reports" class="panel" hidden>
+        <article class="card placeholder-card">
+          <h3>Reports (equipo)</h3>
+          <p>Espacio reservado para enlaces de Reports.</p>
+          <ul class="placeholder-links">
+            <li><a href="#" aria-disabled="true">/reports</a></li>
+            <li><a href="#" aria-disabled="true">Reporte mensual</a></li>
+            <li><a href="#" aria-disabled="true">Exportar PDF/CSV</a></li>
+          </ul>
+        </article>
+      </section>
+
+      <section id="analytics" class="panel" hidden>
+        <article class="card placeholder-card">
+          <h3>Analytics (equipo)</h3>
+          <p>Espacio reservado para enlaces de Analytics.</p>
+          <ul class="placeholder-links">
+            <li><a href="#" aria-disabled="true">/analytics</a></li>
+            <li><a href="#" aria-disabled="true">Graficas principales</a></li>
+            <li><a href="#" aria-disabled="true">Filtros y periodos</a></li>
+          </ul>
+        </article>
+      </section>
+
+      <section id="settings" class="panel">
+        <div class="grid settings-grid">
+          <article class="card settings-card">
+            <h3>Account Settings</h3>
+            <ul class="setting-list">
+              <li class="setting-row">
+                <div>
+                  <p class="setting-label">Username</p>
+                  <p class="setting-value" id="usernameValue">John</p>
+                </div>
+                <button class="btn-secondary" id="editUsernameBtn" type="button">Edit</button>
+              </li>
+              <li class="setting-row">
+                <div>
+                  <p class="setting-label">Email Address</p>
+                  <p class="setting-value" id="emailValue">example@gmail.com</p>
+                </div>
+                <button class="btn-secondary" id="updateEmailBtn" type="button">Update</button>
+              </li>
+              <li class="setting-row">
+                <div>
+                  <p class="setting-label">Password</p>
+                  <p class="setting-value" id="passwordValue">********</p>
+                </div>
+                <button class="btn-primary" id="changePasswordBtn" type="button">Change Password</button>
+              </li>
+              <li class="setting-row">
+                <div>
+                  <p class="setting-label">Language</p>
+                  <p class="setting-value" id="languageValue">English</p>
+                </div>
+                <button class="btn-secondary" id="changeLanguageBtn" type="button">Change</button>
+              </li>
+            </ul>
+          </article>
+
+          <article class="card settings-card">
+            <h3>Notification Options</h3>
+            <ul class="setting-list">
+              <li class="setting-row">
+                <label for="emailNotify">
+                  <span class="setting-label">Email Notifications</span>
+                  <span class="setting-value">Recibe alertas en tu correo</span>
+                </label>
+                <label class="switch" aria-label="Email Notifications">
+                  <input id="emailNotify" type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </li>
+              <li class="setting-row">
+                <label for="mobileAlerts">
+                  <span class="setting-label">Mobile Alerts</span>
+                  <span class="setting-value">Push en tu dispositivo</span>
+                </label>
+                <label class="switch" aria-label="Mobile Alerts">
+                  <input id="mobileAlerts" type="checkbox">
+                  <span class="slider"></span>
+                </label>
+              </li>
+              <li class="setting-row">
+                <label for="projectUpdates">
+                  <span class="setting-label">Project Updates</span>
+                  <span class="setting-value">Cambios de estado y entregables</span>
+                </label>
+                <label class="switch" aria-label="Project Updates">
+                  <input id="projectUpdates" type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </li>
+              <li class="setting-row">
+                <label for="dailySummary">
+                  <span class="setting-label">Daily Summary</span>
+                  <span class="setting-value">Resumen diario al finalizar jornada</span>
+                </label>
+                <label class="switch" aria-label="Daily Summary">
+                  <input id="dailySummary" type="checkbox" checked>
+                  <span class="slider"></span>
+                </label>
+              </li>
+            </ul>
+          </article>
+
+          <article class="card settings-card">
+            <h3>Data Management</h3>
+            <ul class="setting-list">
+              <li class="setting-row">
+                <div>
+                  <p class="setting-label">Data Backup</p>
+                  <p class="setting-value" id="backupValue">Ultimo respaldo: no disponible</p>
+                </div>
+                <button class="btn-secondary" id="backupBtn" type="button">Backup Now</button>
+              </li>
+              <li class="setting-row">
+                <div>
+                  <p class="setting-label">Export Data</p>
+                  <p class="setting-value">CSV, JSON o reporte PDF</p>
+                </div>
+                <button class="btn-secondary" id="exportBtn" type="button">Export</button>
+              </li>
+              <li class="setting-row danger-row">
+                <div>
+                  <p class="setting-label">Delete Account</p>
+                  <p class="setting-value">Esta accion es permanente</p>
+                </div>
+                <button class="btn-danger" type="button" id="deleteAccount">Delete</button>
+              </li>
+            </ul>
+          </article>
+
+          <article class="card settings-card">
+            <h3>System Preferences</h3>
+            <ul class="setting-list">
+              <li class="setting-row">
+                <div>
+                  <p class="setting-label">Theme</p>
+                  <p class="setting-value">Personaliza la apariencia global</p>
+                </div>
+                <button class="btn-secondary" type="button" id="themeQuickToggle">Toggle Theme</button>
+              </li>
+              <li class="setting-row">
+                <div>
+                  <p class="setting-label">Two-Factor Authentication</p>
+                  <p class="setting-value" id="twoFactorValue">Aumenta la seguridad de inicio de sesion</p>
+                </div>
+                <button class="btn-secondary" id="toggle2faBtn" type="button">Enable 2FA</button>
+              </li>
+              <li class="setting-row">
+                <div>
+                  <p class="setting-label">Time Zone</p>
+                  <p class="setting-value" id="timezoneValue">(GMT-5) Eastern Time</p>
+                </div>
+                <button class="btn-secondary" id="changeTimezoneBtn" type="button">Change</button>
+              </li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="products" class="panel" hidden>
+        <article class="card placeholder-card">
+          <h3>Products (equipo)</h3>
+          <p>Espacio reservado para enlaces de Products.</p>
+          <ul class="placeholder-links">
+            <li><a href="#" aria-disabled="true">/products</a></li>
+          </ul>
+        </article>
+      </section>
+
+      <section id="orders" class="panel" hidden>
+        <article class="card placeholder-card">
+          <h3>Orders (equipo)</h3>
+          <p>Espacio reservado para enlaces de Orders.</p>
+          <ul class="placeholder-links">
+            <li><a href="#" aria-disabled="true">/orders</a></li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

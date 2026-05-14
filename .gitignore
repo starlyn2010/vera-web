@@ -11,6 +11,21 @@ node_modules/
 # Build
 dist/
 build/
+dist_electron/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+*.egg-info/
+
+# Database (don't commit real data)
+database/*.db
+database/backups/
+
+# Logs
+logs/
+*.log
 
 # Vercel
 .vercel/
@@ -18,3 +33,6 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Scratch / temp
+scratch/

@@ -1,0 +1,468 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Path - Reportes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #1e5a7a 0%, #2b7aa0 100%);
+            color: white;
+            padding: 20px 0;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 30px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .sidebar-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: #7ed321;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1e5a7a;
+        }
+
+        .sidebar-logo-text {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .sidebar-menu li {
+            margin: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-menu a:hover {
+            background-color: rgba(255,255,255,0.1);
+            border-left-color: #7ed321;
+        }
+
+        .sidebar-menu a.active {
+            background-color: rgba(255,255,255,0.2);
+            border-left-color: #7ed321;
+        }
+
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .header {
+            background: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1e5a7a;
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-icon {
+            width: 36px;
+            height: 36px;
+            background: #e8f0f7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .notification-badge {
+            position: absolute;
+            background: #ff8c42;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            top: 8px;
+            right: 8px;
+        }
+
+        /* CONTENT */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e5a7a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #7ed321;
+            border-radius: 3px;
+        }
+
+        /* REPORT CARDS */
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .report-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .report-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e5a7a;
+        }
+
+        .report-card-icon {
+            font-size: 32px;
+        }
+
+        .report-card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #1e5a7a;
+            margin: 15px 0;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #7ed321 0%, #a5d6a7 100%);
+            width: 75%;
+        }
+
+        /* CHART CONTAINER */
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e5a7a;
+            margin-bottom: 20px;
+        }
+
+        .vertical-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 250px;
+            padding: 20px;
+        }
+
+        .chart-bar {
+            width: 40px;
+            background: linear-gradient(180deg, #1e5a7a 0%, #2b7aa0 100%);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+        }
+
+        .chart-bar-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        /* IMPACT ITEMS */
+        .impact-items {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .impact-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .impact-item-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .impact-item-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e5a7a;
+            margin-bottom: 8px;
+        }
+
+        .impact-item-text {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">🌿</div>
+            <div class="sidebar-logo-text">Clear Path</div>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="CleartPath.html"><span class="menu-icon">📊</span>Dashboard</a></li>
+            <li><a href="Proyecto.html"><span class="menu-icon">📋</span>Projects</a></li>
+            <li><a href="Reporte.html" class="active"><span class="menu-icon">📄</span>Reports</a></li>
+            <li><a href="Analitica.html"><span class="menu-icon">📈</span>Analytics</a></li>
+            <li><a href="#"><span class="menu-icon">⚙️</span>Settings</a></li>
+            <li><a href="#"><span class="menu-icon">🛍️</span>Products</a></li>
+            <li><a href="#"><span class="menu-icon">🛒</span>Orders</a></li>
+            <li><a href="#"><span class="menu-icon">🚪</span>Close Account</a></li>
+            <li><a href="#"><span class="menu-icon">❓</span>Help</a></li>
+            <li><a href="#"><span class="menu-icon">🚪</span>Log Out</a></li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- HEADER -->
+        <header class="header">
+            <h1 class="header-title">Reportes</h1>
+            <div class="header-icons">
+                <div class="header-icon">🛒</div>
+                <div class="header-icon" style="position: relative;">
+                    🔔
+                    <span class="notification-badge">8</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <div class="content">
+            <!-- Report Overview -->
+            <h2 class="section-title">Resumen Anual</h2>
+            
+            <div class="report-grid">
+                <!-- Carbon Offset Card -->
+                <div class="report-card">
+                    <div class="report-card-header">
+                        <div class="report-card-title">Carbon Offset</div>
+                        <div class="report-card-icon">🌍</div>
+                    </div>
+                    <div class="report-card-content">
+                        <div class="stat-label">Toneladas de CO2 Reducidas</div>
+                        <div class="stat-value">485 Tons</div>
+                        <div class="stat-label">Jan 20 2022 < Dec 31 2022</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recycled Resources Card -->
+                <div class="report-card">
+                    <div class="report-card-header">
+                        <div class="report-card-title">Recursos Reciclados</div>
+                        <div class="report-card-icon">♻️</div>
+                    </div>
+                    <div class="report-card-content">
+                        <div class="stat-label">Materiales Recuperados</div>
+                        <div class="stat-value">2,340 kg</div>
+                        <div class="stat-label">Jan 20 2022 < Dec 31 2022</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 92%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="chart-container">
+                <h3 class="chart-title">📊 Desempeño por Trimestre 2022</h3>
+                <div class="vertical-chart">
+                    <div class="chart-bar" style="height: 65%;">
+                        <div class="chart-bar-label">Q1</div>
+                    </div>
+                    <div class="chart-bar" style="height: 75%;">
+                        <div class="chart-bar-label">Q2</div>
+                    </div>
+                    <div class="chart-bar" style="height: 82%;">
+                        <div class="chart-bar-label">Q3</div>
+                    </div>
+                    <div class="chart-bar" style="height: 90%;">
+                        <div class="chart-bar-label">Q4</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Section -->
+            <h2 class="section-title">Impacto Generado</h2>
+            
+            <div class="impact-items">
+                <div class="impact-item">
+                    <div class="impact-item-icon">🌱</div>
+                    <div class="impact-item-title">Árboles Plantados</div>
+                    <div class="impact-item-text">1,250 árboles plantados este año como parte de nuestros programas de reforestación.</div>
+                </div>
+
+                <div class="impact-item">
+                    <div class="impact-item-icon">💧</div>
+                    <div class="impact-item-title">Agua Conservada</div>
+                    <div class="impact-item-text">150,000 litros de agua conservada mediante iniciativas de eficiencia hídrica.</div>
+                </div>
+
+                <div class="impact-item">
+                    <div class="impact-item-icon">⚡</div>
+                    <div class="impact-item-title">Energía Renovable</div>
+                    <div class="impact-item-text">450 MWh de energía renovable generada a través de paneles solares.</div>
+                </div>
+
+                <div class="impact-item">
+                    <div class="impact-item-icon">🦁</div>
+                    <div class="impact-item-title">Vida Silvestre Protegida</div>
+                    <div class="impact-item-text">25,000 hectáreas de hábitats naturales protegidos y restaurados.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

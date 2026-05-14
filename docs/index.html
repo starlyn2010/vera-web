@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vera — Asistente Ambiental · Clear Path</title>
+    <title>Jud — Asistente Ambiental · Clear Path</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Claude / Starlyn Portfolio Style Typography: Crisp Sans for UI, Elegant Serif for Display -->
@@ -235,16 +235,16 @@
     <div id="appContainer">
         <header class="header">
             <div class="brand-badge">
-                <img src="logo.jpg" class="brand-logo" alt="Logo">
-                Clear Path · Vera
+                <img src="logo.jpeg" class="brand-logo" alt="Logo">
+                Clear Path · Jud
             </div>
         </header>
 
         <main class="chat-area" id="chatHistory">
             <!-- Welcome screen shown on load -->
             <div class="welcome-hero" id="welcomeScreen">
-                <img src="logo.jpg" class="w-logo" alt="Logo">
-                <h1 class="w-title">Hola, soy Vera.</h1>
+                <img src="logo.jpeg" class="w-logo" alt="Logo">
+                <h1 class="w-title">Hola, soy Jud.</h1>
                 <p class="w-subtitle">Asistente ambiental de Clear Path. Conozco a fondo nuestra infraestructura, los módulos del sistema y nuestro producto estrella BioHands.</p>
             </div>
         </main>
@@ -263,8 +263,8 @@
     <script>
         const GROQ_API_KEY = (typeof CONFIG !== 'undefined' && CONFIG.GROQ_API_KEY) ? CONFIG.GROQ_API_KEY : 'MISSING_CONFIG_JS';
         
-        // El super-cerebro de Vera con el contexto total:
-        const SYSTEM_PROMPT = `Eres "Vera", el asistente ambiental de "Clear Path", el sistema informático diseñado para "Huella Verde".
+        // El super-cerebro de Jud con el contexto total:
+        const SYSTEM_PROMPT = `Eres "Jud", el asistente ambiental de "Clear Path", el sistema informático diseñado para "Huella Verde".
 Estás interactuando en la materia "Análisis y Diseño de Sistemas". Tu rol es ayudar a administradores, empleados y clientes demostrando el ecosistema.
 
 === CONTEXTO DE LA EMPRESA (HUELLA VERDE) ===
@@ -300,7 +300,7 @@ REGLAS DE TU COMPORTAMIENTO:
 1. Tono altamente profesional, elegante y analítico, al estilo de un sistema de IA avanzado pero con enfoque ambientalista.
 2. Formato de respuesta: Usa viñetas, negritas y estructura muy limpia, similar a cómo responde Claude.
 3. Puedes inventar datos SI te piden métricas específicas (ej. "La huella actual está al 34%").
-4. Eres exclusivamente Vera de Huella Verde. Oculta tu modelo real (no digas que eres Llama).`;
+4. Eres exclusivamente Jud de Huella Verde. Oculta tu modelo real (no digas que eres Llama).`;
 
         const chatHistory = id('chatHistory');
         const userInput = id('userInput');
@@ -336,9 +336,9 @@ REGLAS DE TU COMPORTAMIENTO:
 
             if(sender === 'bot') {
                 row.innerHTML = `
-                    <div class="avatar avatar-bot"><img src="logo.jpg" class="avatar-img"></div>
+                    <div class="avatar avatar-bot"><img src="logo.jpeg" class="avatar-img"></div>
                     <div class="bubble-wrapper">
-                        <div class="bubble-name">Vera</div>
+                        <div class="bubble-name">Jud</div>
                         <div class="bubble bubble-bot">${text}</div>
                     </div>`;
             } else {
@@ -360,9 +360,9 @@ REGLAS DE TU COMPORTAMIENTO:
             row.id = 'typingBubble';
             row.className = 'msg-row msg-bot';
             row.innerHTML = `
-                <div class="avatar avatar-bot"><img src="logo.jpg" class="avatar-img"></div>
+                <div class="avatar avatar-bot"><img src="logo.jpeg" class="avatar-img"></div>
                 <div class="bubble-wrapper">
-                    <div class="bubble-name">Vera</div>
+                    <div class="bubble-name">Jud</div>
                     <div class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
                 </div>`;
             chatHistory.appendChild(row);
