@@ -275,6 +275,7 @@ const Reports = () => {
                                 </span>
                                 <span className="text-[8px] font-bold text-[#52B788] uppercase tracking-widest mt-1">Bio-Eficiencia</span>
                             </div>
+                            </div>
                         </div>
                     )}
 
