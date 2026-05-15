@@ -10,6 +10,7 @@
     "electron": "electron .",
     "electron:dev": "node -e \"process.env.NODE_ENV='development'; require('child_process').spawn('electron', ['.'], {stdio:'inherit'})\"",
     "build": "cd client && npm run build",
+    "build:vercel": "cd client && npm install --include=dev && npm run build",
     "install-all": "npm install && cd client && npm install",
     "electron:build": "npm run build && electron-builder build --windows"
   },

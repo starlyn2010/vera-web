@@ -7,6 +7,7 @@ Run: uvicorn main:app --reload --port 5000
 import os
 import sys
 from datetime import datetime, timezone
+import logging
 
 from dotenv import load_dotenv
 
