@@ -122,7 +122,7 @@ const Dashboard = () => {
     ];
 
     if (stats.loading) return (
-        <div className="p-10 font-body bg-bg-void min-h-screen text-text-primary">
+        <div className="p-10 font-body bg-forest-void min-h-screen text-text-primary">
             <header className="mb-12 h-20 bg-forest-elevated/20 rounded-2xl animate-pulse"></header>
             <ShimmerStats />
             <div className="h-64 bg-forest-elevated/20 rounded-[32px] animate-pulse"></div>
@@ -130,7 +130,7 @@ const Dashboard = () => {
     );
 
     return (
-        <div className="p-6 md:p-10 font-body bg-bg-void min-h-screen text-text-primary">
+        <div className="p-6 md:p-10 font-body bg-forest-void min-h-screen text-text-primary">
             <header className="flex justify-between items-end mb-12">
                 <div className="reveal-header">
                     <p className="text-[10px] uppercase tracking-[0.4em] text-leaf-400/60 font-bold mb-2">Visión General</p>
@@ -138,11 +138,11 @@ const Dashboard = () => {
                 </div>
                 
                 <div className="flex flex-col md:flex-row items-center gap-4">
-                    <div className="flex items-center gap-4 bg-bg-elevated px-6 py-3 rounded-2xl border border-leaf-900/30">
+                    <div className="flex items-center gap-4 bg-forest-elevated px-6 py-3 rounded-2xl border border-leaf-900/30">
                         <Calendar size={18} className="text-leaf-400" />
                         <span className="text-xs font-bold text-text-secondary">Mayo 2026</span>
                     </div>
-                    <NavLink to="/reports" className="bg-leaf-400 hover:bg-leaf-300 text-bg-void px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-glow transition-all active:scale-95">
+                    <NavLink to="/reports" className="bg-leaf-400 hover:bg-leaf-300 text-forest-void px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-glow transition-all active:scale-95">
                         <FileText size={18} /> Reporte Express
                     </NavLink>
                 </div>
@@ -153,7 +153,7 @@ const Dashboard = () => {
                 {kpis.map((kpi, i) => (
                     <div 
                         key={i} 
-                        className={`bg-bg-elevated p-8 rounded-[28px] border border-leaf-900/20 hover:border-leaf-400/30 transition-all group relative overflow-hidden reveal-kpi ${kpi.glow}`}
+                        className={`bg-forest-elevated p-8 rounded-[28px] border border-leaf-900/20 hover:border-leaf-400/30 transition-all group relative overflow-hidden reveal-kpi ${kpi.glow}`}
                     >
                         <div className="absolute top-0 right-0 w-24 h-24 bg-leaf-400/5 blur-3xl rounded-full translate-x-12 -translate-y-12"></div>
                         <div className={`${kpi.color} mb-6`}>
@@ -171,7 +171,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 {/* Main Chart Card */}
                 <div 
-                    className="lg:col-span-2 bg-bg-elevated p-10 rounded-[32px] border border-leaf-900/20 shadow-xl relative overflow-hidden reveal-chart"
+                    className="lg:col-span-2 bg-forest-elevated p-10 rounded-[32px] border border-leaf-900/20 shadow-xl relative overflow-hidden reveal-chart"
                 >
                     <div className="flex justify-between items-center mb-10">
                         <div>
@@ -179,7 +179,7 @@ const Dashboard = () => {
                             <p className="text-xs text-text-secondary mt-1">Medición de regeneración biológica por mes (Datos reales)</p>
                         </div>
                         <select 
-                            className="bg-bg-void border border-leaf-900/30 rounded-xl px-4 py-2 text-[10px] font-bold outline-none text-leaf-400"
+                            className="bg-forest-void border border-leaf-900/30 rounded-xl px-4 py-2 text-[10px] font-bold outline-none text-leaf-400"
                             aria-label="Seleccionar año para impacto ambiental"
                         >
                             <option>2026 — Actual</option>
@@ -212,11 +212,11 @@ const Dashboard = () => {
                                                     ? 'linear-gradient(to top, var(--green-700), var(--green-400))'
                                                     : 'var(--bg-void)',
                                             }}
-                                            className={`w-full ${val > 0 ? 'bg-gradient-to-t from-leaf-700/40 to-leaf-400' : 'bg-bg-void border border-leaf-900/10'} rounded-t-lg transition-all group-hover:to-leaf-glow group-hover:shadow-glow relative chart-bar`}
+                                            className={`w-full ${val > 0 ? 'bg-gradient-to-t from-leaf-700/40 to-leaf-400' : 'bg-forest-void border border-leaf-900/10'} rounded-t-lg transition-all group-hover:to-leaf-glow group-hover:shadow-glow relative chart-bar`}
                                             aria-label={`${month}: ${val}% de impacto`}
                                             role="note"
                                         >
-                                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-leaf-400 text-bg-void px-2 py-0.5 rounded text-[8px] font-black opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-leaf-400 text-forest-void px-2 py-0.5 rounded text-[8px] font-black opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                                                 {val}% Impacto
                                             </div>
                                         </div>
@@ -230,7 +230,7 @@ const Dashboard = () => {
 
                 {/* Secondary Info Card */}
                 <div 
-                    className="bg-bg-elevated p-10 rounded-[32px] border border-leaf-900/20 shadow-xl reveal-status flex flex-col h-full"
+                    className="bg-forest-elevated p-10 rounded-[32px] border border-leaf-900/20 shadow-xl reveal-status flex flex-col h-full"
                 >
                     <h3 className="text-2xl font-display font-bold mb-8 flex items-center gap-2">
                         <Activity size={24} className="text-leaf-400" /> Sistema en Vivo
@@ -248,7 +248,7 @@ const Dashboard = () => {
                                         <span className="text-text-tertiary">{item.name}</span>
                                         <span className="text-leaf-400">{item.val}%</span>
                                     </div>
-                                    <div className="w-full bg-bg-void h-1.5 rounded-full overflow-hidden">
+                                    <div className="w-full bg-forest-void h-1.5 rounded-full overflow-hidden">
                                         <div style={{ width: `${item.val}%` }} className={`${item.color} h-full rounded-full shadow-glow`}></div>
                                     </div>
                                 </div>
@@ -264,8 +264,8 @@ const Dashboard = () => {
                                 { type: 'order', title: 'Pedido Procesado', desc: 'Guantes BioHands x500', time: 'Hace 4h', icon: ShoppingCart, color: 'text-blue-400' },
                                 { type: 'report', title: 'Reporte Generado', desc: 'Auditoría Mensual Q2', time: 'Ayer', icon: FileText, color: 'text-leaf-400' },
                             ].map((event, i) => (
-                                <div key={i} className="flex gap-4 p-4 rounded-2xl bg-bg-void border border-leaf-900/10 hover:border-leaf-400/20 transition-all group">
-                                    <div className={`w-10 h-10 rounded-xl bg-bg-elevated border border-leaf-900/20 flex items-center justify-center ${event.color} shrink-0`}>
+                                <div key={i} className="flex gap-4 p-4 rounded-2xl bg-forest-void border border-leaf-900/10 hover:border-leaf-400/20 transition-all group">
+                                    <div className={`w-10 h-10 rounded-xl bg-forest-elevated border border-leaf-900/20 flex items-center justify-center ${event.color} shrink-0`}>
                                         <event.icon size={18} />
                                     </div>
                                     <div>

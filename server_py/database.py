@@ -8,10 +8,95 @@ import os
 import sqlite3
 import asyncio
 from functools import partial
+import shutil
 
 DB_PATH: str = os.getenv("DB_PATH", "../database/clearpath.db")
 
-_base = os.path.dirname(os.path.abspath(__file__))
+# When running as a PyInstaller bundle, __file__ points to a temp dir (_MEIPASS).
+# Use sys.executable's directory instead so relative paths resolve correctly.
+import sys
+if getattr(sys, 'frozen', False):
+    # Running as compiled exe — _base is the bundled temporary directory
+    _base = sys._MEIPASS
+    _exe_dir = os.path.dirname(sys.executable)
+    appdata = os.getenv('APPDATA')
+
+    def _find_bundled_db_path() -> str | None:
+        """
+        Locate a bundled/prepopulated DB shipped with the app.
+
+        Expected layouts:
+        - Electron (extraResources):
+          <resources>/server_py/dist/clearpath_server.exe  (sys.executable)
+          <resources>/database/static_demo.db
+        - Repo/local run:
+          <repo>/server_py/dist/clearpath_server.exe
+          <repo>/database/static_demo.db
+        """
+        candidates: list[str] = []
+        for up in (0, 1, 2, 3):
+            root = _exe_dir
+            for _ in range(up):
+                root = os.path.dirname(root)
+            db_dir = os.path.join(root, "database")
+            candidates.append(os.path.join(db_dir, "static_demo.db"))
+            candidates.append(os.path.join(db_dir, "clearpath.db"))
+
+        for p in candidates:
+            if os.path.exists(p):
+                return os.path.normpath(p)
+        return None
+
+    def _ensure_seeded_db(target_db_path: str) -> None:
+        """
+        Ensure `target_db_path` is a usable DB with seeded demo data.
+
+        If the DB already exists but looks empty/uninitialized, it will be backed up
+        and replaced with the bundled demo DB.
+        """
+        if os.path.exists(target_db_path):
+            try:
+                conn = sqlite3.connect(target_db_path)
+                cur = conn.cursor()
+                cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='inventario'")
+                has_inv = cur.fetchone() is not None
+                inv_count = 0
+                if has_inv:
+                    cur.execute("SELECT COUNT(*) FROM inventario")
+                    inv_count = int(cur.fetchone()[0])
+                conn.close()
+                if has_inv and inv_count > 0:
+                    return
+            except Exception:
+                # If we cannot validate the existing DB, don't overwrite it.
+                return
+
+            # Existing DB but empty/unseeded: back it up then replace.
+            try:
+                backup_path = target_db_path + ".bak_empty"
+                if not os.path.exists(backup_path):
+                    shutil.copy2(target_db_path, backup_path)
+            except Exception:
+                pass
+
+        bundled = _find_bundled_db_path()
+        if not bundled:
+            return
+        os.makedirs(os.path.dirname(target_db_path), exist_ok=True)
+        shutil.copy2(bundled, target_db_path)
+
+    if appdata:
+        _db_dir = os.path.join(appdata, "ClearPath", "database")
+        _resolved_db = os.path.join(_db_dir, "clearpath.db")
+        try:
+            _ensure_seeded_db(_resolved_db)
+        except Exception:
+            _resolved_db = os.path.normpath(os.path.join(_exe_dir, DB_PATH))
+    else:
+        _resolved_db = os.path.normpath(os.path.join(_exe_dir, DB_PATH))
+else:
+    _base = os.path.dirname(os.path.abspath(__file__))
+    _resolved_db = os.path.normpath(os.path.join(_base, DB_PATH))
 
 # On Vercel, prefer static_demo.db if it exists
 if os.getenv("VERCEL"):
@@ -20,8 +105,6 @@ if os.getenv("VERCEL"):
         _resolved_db = _static_db
     else:
         _resolved_db = os.path.normpath(os.path.join(_base, DB_PATH))
-else:
-    _resolved_db = os.path.normpath(os.path.join(_base, DB_PATH))
 
 
 def get_db_path() -> str:
@@ -55,7 +138,10 @@ def init_schema_sync() -> None:
         print("Vercel detected: Skipping database schema initialization (read-only).")
         return
 
-    schema_path = os.path.normpath(os.path.join(_base, "..", "database", "schema_sqlite.sql"))
+    if getattr(sys, 'frozen', False):
+        schema_path = os.path.normpath(os.path.join(_base, "schema_sqlite.sql"))
+    else:
+        schema_path = os.path.normpath(os.path.join(_base, "..", "database", "schema_sqlite.sql"))
     if not os.path.exists(schema_path):
         print(f"Schema file not found at {schema_path}")
         return

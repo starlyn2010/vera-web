@@ -8,14 +8,7 @@ import html2pdf from 'html2pdf.js';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import Dialog from '../components/Dialog';
-
-// Build the public verification URL for QR codes
-// Build the public verification URL for QR codes
-const getVerifyUrl = (reportId) => {
-    // Hardcoded production URL for real-world functionality
-    const base = 'https://jud-inky.vercel.app';
-    return `${base}/verify/${reportId}`;
-};
+import { getVerifyUrl } from '../utils/publicVerifyUrl';
 
 const Reports = () => {
     const { addNotification } = useNotification();
@@ -145,7 +138,8 @@ const Reports = () => {
         setTimeout(() => {
             const element = reportTemplateRef.current;
             const opt = {
-                margin:       1,
+                // Use margin 0 so the A4-sized template isn't cropped by pdf margins.
+                margin:       0,
                 filename:     `BioHands_Report_${report.tipo}_${report.periodo}.pdf`.replace(/\s+/g, '_'),
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
@@ -184,14 +178,14 @@ const Reports = () => {
     }, [reports, searchTerm]);
 
     if (loading) return (
-        <div className="h-full flex flex-col items-center justify-center bg-bg-void">
+        <div className="h-full flex flex-col items-center justify-center bg-forest-void">
             <Loader2 className="w-10 h-10 text-leaf-400 animate-spin" aria-label="Cargando reportes" />
             <p className="mt-4 text-leaf-400 font-display animate-pulse">Sincronizando Archivos...</p>
         </div>
     );
 
     return (
-            <div className="p-8 font-body bg-bg-void min-h-screen text-text-primary relative">
+            <div className="p-8 font-body bg-forest-void min-h-screen text-text-primary relative">
             {/* HIDDEN PDF TEMPLATE - Real Data Driven */}
             <div className="absolute left-[-9999px] top-0">
                 <div
@@ -203,7 +197,7 @@ const Reports = () => {
                     <div className="flex justify-between items-start border-b-2 border-[#52B788] pb-10 mb-12">
                         <div>
                             <div className="flex items-center gap-3 mb-2">
-                                <img src="/logo.jpeg" className="w-10 h-10 rounded-xl object-cover" alt="Logo" />
+                                <img src="/logo.png" className="w-10 h-10 rounded-xl object-cover" alt="Logo" />
                                 <h1 className="text-2xl font-bold tracking-tighter uppercase text-[#0D1712]">BioHands <span className="text-[#52B788]">Clear Path</span></h1>
                             </div>
                             <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Tecnología de Impacto Ambiental</p>
@@ -282,7 +276,10 @@ const Reports = () => {
                     )}
 
                     {/* Footer with QR */}
-                    <div className="mt-auto pt-10 border-t border-gray-100 flex justify-between items-center">
+                    <div
+                        className="mt-auto pt-10 border-t border-gray-100 flex justify-between items-center pdf-avoid-break"
+                        style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+                    >
                         <div className="text-[10px] text-gray-400 font-medium">
                             © 2026 BioHands Corporation. Reservados todos los derechos.<br />
                             Generado automáticamente por Clear Path Jud Engine.
@@ -294,7 +291,7 @@ const Reports = () => {
                                 bgColor="#ffffff"
                                 fgColor="#0D1712"
                                 level="M"
-                                includeMargin={false}
+                                includeMargin={true}
                             />
                             <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest">Escanear para verificar</span>
                         </div>
@@ -476,7 +473,7 @@ const Reports = () => {
                         <textarea 
                             required
                             rows={4}
-                            className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all resize-none text-sm"
+                            className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all resize-none text-sm"
                             placeholder="Ej: Necesito un análisis de los productos con mayor impacto ambiental vendidos en el último mes..."
                             value={customReportPrompt}
                             onChange={(e) => setCustomReportPrompt(e.target.value)}

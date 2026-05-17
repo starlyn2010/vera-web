@@ -93,14 +93,14 @@ const Projects = () => {
     );
 
     if (loading && projects.length === 0) return (
-        <div className="h-screen bg-bg-void flex flex-col items-center justify-center">
+        <div className="h-screen bg-forest-void flex flex-col items-center justify-center">
             <div className="w-12 h-12 border-4 border-leaf-700 border-t-leaf-400 rounded-full animate-spin" aria-label="Cargando"></div>
             <p className="mt-4 text-leaf-400 font-display animate-pulse">Analizando Iniciativas...</p>
         </div>
     );
 
     return (
-        <div className="p-10 font-body bg-bg-void min-h-screen text-text-primary relative">
+        <div className="p-10 font-body bg-forest-void min-h-screen text-text-primary relative">
             <header className="flex justify-between items-center mb-12">
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
                     <p className="text-[10px] uppercase tracking-[0.4em] text-leaf-400/60 font-bold mb-2">Gestión de Iniciativas</p>
@@ -207,7 +207,7 @@ const Projects = () => {
                             id="proj-name"
                             required
                             type="text" 
-                            className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
+                            className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
                             placeholder="Ej: Reforestación Sector Norte"
                             value={newProject.nombre}
                             onChange={(e) => setNewProject({...newProject, nombre: e.target.value})}
@@ -219,7 +219,7 @@ const Projects = () => {
                             id="proj-dept"
                             required
                             type="text" 
-                            className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
+                            className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
                             placeholder="Ej: Gestión de Residuos"
                             value={newProject.departamento}
                             onChange={(e) => setNewProject({...newProject, departamento: e.target.value})}
@@ -232,7 +232,7 @@ const Projects = () => {
                                 id="proj-date"
                                 required
                                 type="date" 
-                                className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
+                                className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
                                 value={newProject.fecha_inicio}
                                 onChange={(e) => setNewProject({...newProject, fecha_inicio: e.target.value})}
                             />
@@ -241,7 +241,7 @@ const Projects = () => {
                             <label htmlFor="proj-status" className="text-[10px] font-bold uppercase text-leaf-400/60 tracking-widest ml-1">Estado Inicial</label>
                             <select 
                                 id="proj-status"
-                                className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
+                                className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
                                 value={newProject.estado}
                                 onChange={(e) => setNewProject({...newProject, estado: e.target.value})}
                             >

@@ -12,7 +12,12 @@ import logging
 from dotenv import load_dotenv
 
 # Load env BEFORE any imports that read env vars
-load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+# When frozen (PyInstaller), look for .env in the bundled temp dir (_MEIPASS)
+if getattr(sys, 'frozen', False):
+    _env_dir = sys._MEIPASS
+else:
+    _env_dir = os.path.dirname(__file__)
+load_dotenv(os.path.join(_env_dir, ".env"))
 
 # Configure logging
 is_vercel = os.getenv("VERCEL")
@@ -56,17 +61,14 @@ init_schema_sync()
 app = FastAPI(title="Clear Path API", version="2.0.0")
 
 # ── CORS ─────────────────────────────────────────────────────────────────────
-allowed_origins = [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:3000",
-    "app://",
-]
-
+# The desktop app (Electron) loads UI from `file://`, which produces a non-standard Origin
+# in Chromium (often `null`). Starlette's CORS validation can reject such origins.
+# The API uses bearer tokens (Authorization header), so we can safely allow any origin
+# without credentials to keep Electron + localhost working reliably.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # FastAPI CORS: using wildcard + credentials=False for dev
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -82,9 +84,7 @@ async def log_requests(request: Request, call_next):
         logging.error(f"FATAL ERROR on {path}: {str(e)}", exc_info=True)
         return JSONResponse(status_code=500, content={"error": str(e)})
 
-@app.get("/api/health")
-async def health():
-    return {"status": "ok"}
+# La ruta /api/health se define más adelante con más detalles
 
 # ── Import and register routers ──────────────────────────────────────────────
 from routes.auth_routes import router as auth_router
@@ -151,4 +151,8 @@ if __name__ == "__main__":
     print(f"\nClear Path API corriendo en http://localhost:{port}")
     print(f"Jud (Groq): {'Activo' if os.getenv('GROQ_API_KEY') else 'Sin API Key'}")
     print(f"Backend: Python/FastAPI\n")
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
+    
+    if getattr(sys, 'frozen', False):
+        uvicorn.run(app, host="0.0.0.0", port=port)
+    else:
+        uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)

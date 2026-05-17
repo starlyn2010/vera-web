@@ -16,11 +16,12 @@ import Settings from './pages/Settings';
 import Reports from './pages/Reports';
 import PublicVerify from './pages/PublicVerify';
 import PageTransition from './components/PageTransition';
+import { NotificationProvider } from './context/NotificationContext';
 
 const AppRoutes = () => {
     const { user, loading } = useAuth();
 
-    if (loading) return <div className="h-screen flex items-center justify-center bg-[#0A0A0A] text-white">Cargando...</div>;
+    if (loading) return <div className="h-screen flex items-center justify-center bg-forest-void text-text-primary">Cargando...</div>;
 
     return (
         <Routes>
@@ -52,7 +53,7 @@ const AppRoutes = () => {
     );
 };
 
-import { NotificationProvider } from './context/NotificationContext';
+
 
 function App() {
   const Router = (typeof window !== 'undefined' && window.location?.protocol === 'file:')

@@ -11,14 +11,27 @@ function startServer() {
         console.log('Skipping backend startup (managed externally)');
         return;
     }
-    const serverPath = path.join(__dirname, '../server_py/main.py');
-    const pythonExe = process.platform === 'win32' ? 'py' : 'python3';
-    const args = process.platform === 'win32' ? ['-3', serverPath] : [serverPath];
+
+    let command, args, cwd;
+
+    if (isDev) {
+        // Development: use Python directly
+        const serverPath = path.join(__dirname, '../server_py/main.py');
+        command = process.platform === 'win32' ? 'py' : 'python3';
+        args = process.platform === 'win32' ? ['-3', serverPath] : [serverPath];
+        cwd = path.join(__dirname, '../server_py');
+    } else {
+        // Production: use compiled exe from PyInstaller
+        const exePath = path.join(process.resourcesPath, 'server_py', 'dist', 'clearpath_server.exe');
+        command = exePath;
+        args = [];
+        cwd = path.join(process.resourcesPath, 'server_py');
+    }
     
-    console.log(`Starting backend: ${pythonExe} ${args.join(' ')}`);
-    serverProcess = spawn(pythonExe, args, {
-        cwd: path.join(__dirname, '../server_py'),
-        env: { ...process.env, PORT: 5000 }
+    console.log(`Starting backend: ${command} ${args.join(' ')}`);
+    serverProcess = spawn(command, args, {
+        cwd: cwd,
+        env: { ...process.env, PORT: '5000' }
     });
 
     serverProcess.stdout.on('data', (data) => {
@@ -47,7 +60,7 @@ function createWindow() {
             nodeIntegration: false,
             contextIsolation: true
         },
-        icon: path.join(__dirname, '../client/public/logo.jpeg')
+        icon: path.join(__dirname, '../client/public/logo.png')
     });
 
     if (isDev) {
@@ -76,13 +89,21 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
     if (serverProcess) {
-        serverProcess.kill();
+        if (process.platform === 'win32') {
+            spawn('taskkill', ['/pid', serverProcess.pid, '/f', '/t']);
+        } else {
+            serverProcess.kill();
+        }
     }
     if (process.platform !== 'darwin') app.quit();
 });
 
 app.on('before-quit', () => {
     if (serverProcess) {
-        serverProcess.kill();
+        if (process.platform === 'win32') {
+            spawn('taskkill', ['/pid', serverProcess.pid, '/f', '/t']);
+        } else {
+            serverProcess.kill();
+        }
     }
 });

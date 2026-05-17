@@ -37,7 +37,13 @@ const Login = () => {
             });
             setTimeout(() => navigate('/dashboard'), 1000);
         } catch (err) {
-            setError('Credenciales inválidas. Verifica tu usuario y contraseña.');
+            const status = err?.response?.status;
+            const apiMessage = err?.response?.data?.error || err?.response?.data?.detail;
+            if (status) {
+                setError(apiMessage ? `Error (${status}): ${apiMessage}` : `Error (${status}) al iniciar sesión.`);
+            } else {
+                setError('No se pudo conectar con el backend. Verifica que esté corriendo en http://127.0.0.1:5000/api/health');
+            }
             gsap.fromTo(".login-card", { x: -10 }, { x: 0, duration: 0.1, repeat: 5, yoyo: true });
         }
     };
@@ -69,7 +75,7 @@ const Login = () => {
                             </div>
                             <input 
                                 type="text" 
-                                className="w-full p-4 pl-14 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
+                                className="w-full py-4 pr-4 pl-16 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
                                 placeholder="Tu nombre de usuario"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -86,7 +92,7 @@ const Login = () => {
                             </div>
                             <input 
                                 type="password" 
-                                className="w-full p-4 pl-14 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
+                                className="w-full py-4 pr-4 pl-16 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}

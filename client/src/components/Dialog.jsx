@@ -23,7 +23,7 @@ const Dialog = ({ isOpen, onClose, title, children }) => {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        className="relative w-full max-w-xl bg-bg-elevated border border-leaf-400/20 rounded-[32px] shadow-2xl shadow-leaf-400/10 overflow-hidden max-h-[90vh] flex flex-col"
+                        className="relative w-full max-w-xl bg-forest-elevated border border-leaf-400/20 rounded-[32px] shadow-2xl shadow-leaf-400/10 overflow-hidden max-h-[90vh] flex flex-col"
                     >
                         {/* Decorative Gradient */}
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-leaf-700 via-leaf-400 to-leaf-700" />

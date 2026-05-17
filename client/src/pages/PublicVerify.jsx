@@ -24,7 +24,7 @@ const PublicVerify = () => {
                 {/* Logo Header */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center gap-3 mb-3">
-                        <img src="/logo.jpeg" className="w-12 h-12 rounded-2xl object-cover shadow-lg" alt="Logo" />
+                        <img src="/logo.png" className="w-12 h-12 rounded-2xl object-cover shadow-lg" alt="Logo" />
                         <h1 className="text-2xl font-bold text-white tracking-tight">
                             Bio<span className="text-[#52B788]">Hands</span>
                         </h1>

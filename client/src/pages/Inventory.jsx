@@ -250,7 +250,8 @@ const Inventory = () => {
         setTimeout(() => {
             const element = document.getElementById('invoice-template');
             const opt = {
-                margin: 1,
+                // Use margin 0 so the A4-sized template isn't cropped by pdf margins.
+                margin: 0,
                 filename: `Factura_${items.length === 1 ? items[0].producto : 'Seleccion'}.pdf`.replace(/\s+/g, '_'),
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, letterRendering: true },
@@ -283,7 +284,7 @@ const Inventory = () => {
 
     if (loading && products.length === 0) {
         return (
-            <div className="p-12 flex flex-col items-center justify-center h-[80vh] bg-bg-void">
+            <div className="p-12 flex flex-col items-center justify-center h-[80vh] bg-forest-void">
                 <div className="w-16 h-16 border-4 border-leaf-900 border-t-leaf-400 rounded-full animate-spin" aria-label="Cargando"></div>
                 <p className="mt-6 text-leaf-400 font-display animate-pulse">Cargando Bio-Inventario...</p>
             </div>
@@ -291,12 +292,12 @@ const Inventory = () => {
     }
 
     return (
-        <div className="p-10 font-body min-h-screen bg-bg-void">
+        <div className="p-10 font-body min-h-screen bg-forest-void">
             {/* Hidden invoice template */}
             <div className="absolute left-[-9999px] top-0">
                 <div
                     id="invoice-template"
-                    className="w-[19cm] min-h-[29.7cm] bg-white text-[#0D1712] p-14 flex flex-col font-sans box-border overflow-hidden"
+                    className="w-[19cm] min-h-[29.7cm] bg-white text-[#0D1712] p-14 flex flex-col font-sans box-border overflow-visible"
                     style={{ pageBreakInside: 'avoid' }}
                 >
                     <div className="flex justify-between items-start border-b-2 border-[#52B788] pb-8 mb-10">
@@ -365,7 +366,10 @@ const Inventory = () => {
                         </div>
                     </div>
 
-                    <div className="mt-auto pt-10 text-[9px] text-gray-400 font-bold uppercase tracking-widest">
+                    <div
+                        className="mt-auto pt-10 text-[9px] text-gray-400 font-bold uppercase tracking-widest pdf-avoid-break"
+                        style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+                    >
                         Documento generado por Clear Path
                     </div>
                 </div>
@@ -385,7 +389,7 @@ const Inventory = () => {
                         type="button"
                         onClick={() => handlePrintInvoice('multi')}
                         disabled={isPrintingInvoice || selectedIds.size === 0}
-                        className="glass px-6 py-3 rounded-xl font-bold text-[13px] text-text-primary flex items-center gap-2 hover:bg-bg-hover transition-all disabled:opacity-50"
+                        className="glass px-6 py-3 rounded-xl font-bold text-[13px] text-text-primary flex items-center gap-2 hover:bg-forest-hover transition-all disabled:opacity-50"
                         aria-label="Imprimir factura de productos seleccionados"
                     >
                         <Printer size={18} /> Imprimir Factura
@@ -395,7 +399,7 @@ const Inventory = () => {
                         aria-label="Mostrar todos los productos"
                         onClick={() => setStockFilter('all')}
                         className={`glass px-6 py-3 rounded-xl font-bold text-[13px] text-text-primary flex items-center gap-2 transition-all ${
-                            stockFilter === 'all' ? 'border border-leaf-400/30 shadow-glow-sm' : 'hover:bg-bg-hover'
+                            stockFilter === 'all' ? 'border border-leaf-400/30 shadow-glow-sm' : 'hover:bg-forest-hover'
                         }`}
                     >
                         <Filter size={18} /> Todos
@@ -405,7 +409,7 @@ const Inventory = () => {
                         aria-label="Ver productos con stock bajo"
                         onClick={() => setStockFilter('low')}
                         className={`glass px-6 py-3 rounded-xl font-bold text-[13px] text-text-primary flex items-center gap-2 transition-all ${
-                            stockFilter === 'low' ? 'border border-yellow-400/40' : 'hover:bg-bg-hover'
+                            stockFilter === 'low' ? 'border border-yellow-400/40' : 'hover:bg-forest-hover'
                         }`}
                     >
                         <AlertTriangle size={18} className="text-yellow-400" />
@@ -421,7 +425,7 @@ const Inventory = () => {
                         aria-label="Ver productos agotados"
                         onClick={() => setStockFilter('out')}
                         className={`glass px-6 py-3 rounded-xl font-bold text-[13px] text-text-primary flex items-center gap-2 transition-all ${
-                            stockFilter === 'out' ? 'border border-red-400/40' : 'hover:bg-bg-hover'
+                            stockFilter === 'out' ? 'border border-red-400/40' : 'hover:bg-forest-hover'
                         }`}
                     >
                         <AlertTriangle size={18} className="text-red-400" />
@@ -499,7 +503,7 @@ const Inventory = () => {
                     type="text"
                     aria-label="Buscar productos"
                     placeholder="Buscar por nombre de producto o categoría..."
-                    className="w-full bg-bg-elevated border border-leaf-900/30 p-5 pl-16 rounded-2xl outline-none text-text-primary focus:border-leaf-400/50 focus:shadow-glow transition-all"
+                    className="w-full bg-forest-elevated border border-leaf-900/30 p-5 pl-16 rounded-2xl outline-none text-text-primary focus:border-leaf-400/50 focus:shadow-glow transition-all"
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
                 />
@@ -525,9 +529,9 @@ const Inventory = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="bg-bg-elevated border border-leaf-900/30 rounded-[24px] overflow-hidden hover:border-leaf-400/30 transition-all duration-500 group shadow-lg hover:shadow-glow cursor-pointer"
+                        className="bg-forest-elevated border border-leaf-900/30 rounded-[24px] overflow-hidden hover:border-leaf-400/30 transition-all duration-500 group shadow-lg hover:shadow-glow cursor-pointer"
                     >
-                        <div className="h-44 bg-bg-primary relative overflow-hidden">
+                        <div className="h-44 bg-forest-primary relative overflow-hidden">
                              <img
                                  src={getProductImage(product)}
                                  alt={product.producto}
@@ -550,7 +554,7 @@ const Inventory = () => {
                                     toggleSelected(product.id_producto);
                                 }}
                                 aria-label={selectedIds.has(product.id_producto) ? `Quitar ${product.producto} de selección` : `Seleccionar ${product.producto} para factura`}
-                                className="mb-4 w-full bg-bg-primary border border-leaf-900/30 rounded-xl px-4 py-2 text-[11px] font-black uppercase tracking-widest text-leaf-400 flex items-center justify-between hover:border-leaf-400/30 transition-all"
+                                className="mb-4 w-full bg-forest-primary border border-leaf-900/30 rounded-xl px-4 py-2 text-[11px] font-black uppercase tracking-widest text-leaf-400 flex items-center justify-between hover:border-leaf-400/30 transition-all"
                             >
                                 <span>Factura</span>
                                 {selectedIds.has(product.id_producto) ? <CheckSquare size={16} /> : <Square size={16} />}
@@ -583,7 +587,7 @@ const Inventory = () => {
                                         handleViewProduct(product);
                                     }}
                                     aria-label={`Ver detalles de ${product.producto}`}
-                                    className="w-12 h-12 bg-bg-primary text-leaf-400 rounded-xl border border-leaf-900/30 flex items-center justify-center hover:bg-bg-hover hover:border-leaf-400/40 transition-all duration-300"
+                                    className="w-12 h-12 bg-forest-primary text-leaf-400 rounded-xl border border-leaf-900/30 flex items-center justify-center hover:bg-forest-hover hover:border-leaf-400/40 transition-all duration-300"
                                 >
                                     <Eye size={19} />
                                 </button>
@@ -591,7 +595,7 @@ const Inventory = () => {
                                     type="button"
                                     onClick={(event) => handleAddToCart(product, event)}
                                     aria-label={`Añadir ${product.producto} al carrito`}
-                                    className="w-12 h-12 bg-bg-primary text-leaf-400 rounded-xl border border-leaf-900/30 flex items-center justify-center hover:bg-leaf-400 hover:text-forest-void hover:border-leaf-400 transition-all duration-300"
+                                    className="w-12 h-12 bg-forest-primary text-leaf-400 rounded-xl border border-leaf-900/30 flex items-center justify-center hover:bg-leaf-400 hover:text-forest-void hover:border-leaf-400 transition-all duration-300"
                                 >
                                     <ShoppingCart size={20} />
                                 </button>
@@ -618,7 +622,7 @@ const Inventory = () => {
                             id="prod-name"
                             required
                             type="text"
-                            className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
+                            className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
                             placeholder="Ej: Guantes BioHands Nitrilo"
                             value={newProduct.producto}
                             onChange={(event) => setNewProduct({ ...newProduct, producto: event.target.value })}
@@ -632,7 +636,7 @@ const Inventory = () => {
                             </label>
                             <select
                                 id="prod-cat"
-                                className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
+                                className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
                                 value={newProduct.categoria}
                                 onChange={(event) => setNewProduct({ ...newProduct, categoria: event.target.value })}
                             >
@@ -657,7 +661,7 @@ const Inventory = () => {
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
+                                className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
                                 placeholder="0.00"
                                 value={newProduct.precio}
                                 onChange={(event) => setNewProduct({ ...newProduct, precio: event.target.value })}
@@ -673,7 +677,7 @@ const Inventory = () => {
                                 required
                                 type="number"
                                 min="0"
-                                className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
+                                className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
                                 placeholder="0"
                                 value={newProduct.stock}
                                 onChange={(event) => setNewProduct({ ...newProduct, stock: event.target.value })}
@@ -687,7 +691,7 @@ const Inventory = () => {
                                 type="number"
                                 min="0"
                                 step="0.1"
-                                className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
+                                className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
                                 placeholder="0.0"
                                 value={newProduct.impacto_ambiental}
                                 onChange={(event) => setNewProduct({ ...newProduct, impacto_ambiental: event.target.value })}
@@ -700,7 +704,7 @@ const Inventory = () => {
                         <input
                             id="prod-image"
                             type="text"
-                            className="w-full bg-bg-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
+                            className="w-full bg-forest-void border border-leaf-900/30 p-4 rounded-xl outline-none text-text-primary focus:border-leaf-400/50 transition-all"
                             placeholder="/products/product-biowrap.jpeg"
                             value={newProduct.imagen_url}
                             onChange={(event) => setNewProduct({ ...newProduct, imagen_url: event.target.value })}
@@ -729,25 +733,25 @@ const Inventory = () => {
                             }}
                         />
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-bg-primary/40 border border-leaf-400/10 p-4 rounded-2xl">
+                            <div className="bg-forest-primary/40 border border-leaf-400/10 p-4 rounded-2xl">
                                 <p className="text-[10px] uppercase tracking-widest text-leaf-400/60 font-black">Categoría</p>
                                 <p className="font-bold text-text-primary mt-1">{selectedProduct.categoria}</p>
                             </div>
-                            <div className="bg-bg-primary/40 border border-leaf-400/10 p-4 rounded-2xl">
+                            <div className="bg-forest-primary/40 border border-leaf-400/10 p-4 rounded-2xl">
                                 <p className="text-[10px] uppercase tracking-widest text-leaf-400/60 font-black">Stock</p>
                                 <p className="font-bold text-text-primary mt-1">{selectedProduct.stock} unidades</p>
                             </div>
-                            <div className="bg-bg-primary/40 border border-leaf-400/10 p-4 rounded-2xl">
+                            <div className="bg-forest-primary/40 border border-leaf-400/10 p-4 rounded-2xl">
                                 <p className="text-[10px] uppercase tracking-widest text-leaf-400/60 font-black">Precio</p>
                                 <p className="font-bold text-text-primary mt-1">${formatPrice(selectedProduct.precio)}</p>
                             </div>
-                            <div className="bg-bg-primary/40 border border-leaf-400/10 p-4 rounded-2xl">
+                            <div className="bg-forest-primary/40 border border-leaf-400/10 p-4 rounded-2xl">
                                 <p className="text-[10px] uppercase tracking-widest text-leaf-400/60 font-black">Impacto</p>
                                 <p className="font-bold text-text-primary mt-1">{selectedProduct.impacto_ambiental}kg CO2</p>
                             </div>
                         </div>
                         
-                        <div className="bg-bg-primary/30 border border-leaf-400/10 p-5 rounded-2xl min-h-[100px]">
+                        <div className="bg-forest-primary/30 border border-leaf-400/10 p-5 rounded-2xl min-h-[100px]">
                             <p className="text-[10px] uppercase tracking-widest text-leaf-400/60 font-black mb-3 flex items-center gap-2">
                                 <Leaf size={14} /> Análisis Jud Engine
                             </p>
@@ -779,7 +783,7 @@ const Inventory = () => {
                             type="button"
                             onClick={() => handlePrintInvoice('single')}
                             disabled={isPrintingInvoice}
-                            className="w-full bg-bg-primary text-leaf-400 font-black py-4 rounded-2xl border border-leaf-900/30 hover:bg-bg-hover transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                            className="w-full bg-forest-primary text-leaf-400 font-black py-4 rounded-2xl border border-leaf-900/30 hover:bg-forest-hover transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                         >
                             <Printer size={18} /> Imprimir factura
                         </button>

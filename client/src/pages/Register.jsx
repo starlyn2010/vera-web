@@ -52,7 +52,13 @@ const Register = () => {
                 duration: 0.5
             });
         } catch (err) {
-            setError(err.response?.data?.error || 'Error al registrar el usuario.');
+            const status = err?.response?.status;
+            const apiMessage = err?.response?.data?.error || err?.response?.data?.detail;
+            if (status) {
+                setError(apiMessage ? `Error (${status}): ${apiMessage}` : `Error (${status}) al registrar el usuario.`);
+            } else {
+                setError('No se pudo conectar con el backend. Verifica que esté corriendo en http://127.0.0.1:5000/api/health');
+            }
         } finally {
             setLoading(false);
         }
@@ -100,7 +106,7 @@ const Register = () => {
                                     </div>
                                     <input 
                                         type="text" 
-                                        className="w-full p-3.5 pl-13 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white text-sm outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
+                                        className="w-full py-3.5 pr-3.5 pl-14 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white text-sm outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
                                         placeholder="usuario_eco"
                                         value={formData.username}
                                         onChange={(e) => setFormData({...formData, username: e.target.value})}
@@ -117,7 +123,7 @@ const Register = () => {
                                     </div>
                                     <input 
                                         type="email" 
-                                        className="w-full p-3.5 pl-13 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white text-sm outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
+                                        className="w-full py-3.5 pr-3.5 pl-14 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white text-sm outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
                                         placeholder="email@ejemplo.com"
                                         value={formData.email}
                                         onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -135,7 +141,7 @@ const Register = () => {
                                         </div>
                                         <input 
                                             type="password" 
-                                            className="w-full p-3.5 pl-13 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white text-sm outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
+                                            className="w-full py-3.5 pr-3.5 pl-14 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white text-sm outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
                                             placeholder="••••"
                                             value={formData.password}
                                             onChange={(e) => setFormData({...formData, password: e.target.value})}
@@ -151,7 +157,7 @@ const Register = () => {
                                         </div>
                                         <input 
                                             type="password" 
-                                            className="w-full p-3.5 pl-13 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white text-sm outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
+                                            className="w-full py-3.5 pr-3.5 pl-14 rounded-2xl border border-leaf-900/30 bg-forest-elevated/50 text-white text-sm outline-none focus:border-leaf-400/50 focus:shadow-glow transition-all"
                                             placeholder="••••"
                                             value={formData.confirmPassword}
                                             onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}

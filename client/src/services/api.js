@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-const isElectron = window.electronAPI !== undefined;
-const baseURL = isElectron ? 'http://localhost:5000/api' : '/api';
+const isFileProtocol = typeof window !== 'undefined' && window.location?.protocol === 'file:';
+const isElectron = isFileProtocol || window.electronAPI !== undefined;
+
+// Use 127.0.0.1 to avoid IPv6/localhost resolution edge cases on Windows.
+const baseURL = isElectron ? 'http://127.0.0.1:5000/api' : '/api';
 
 const api = axios.create({
     baseURL: baseURL,
@@ -36,4 +39,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

@@ -73,7 +73,11 @@ async def login(body: LoginBody):
     if not body.nombre_usuario or not password:
         raise HTTPException(400, "Usuario y contraseña son obligatorios.")
 
-    rows = await query("SELECT * FROM registro WHERE nombre_usuario = ?", (body.nombre_usuario,))
+    # Allow login using either username or email.
+    rows = await query(
+        "SELECT * FROM registro WHERE nombre_usuario = ? OR correo_electronico = ?",
+        (body.nombre_usuario, body.nombre_usuario),
+    )
     user = rows[0] if rows else None
     if not user:
         raise HTTPException(401, "Credenciales inválidas. Verifica tu usuario y contraseña.")
@@ -113,4 +117,12 @@ async def update_profile(body: ProfileBody, user: dict = Depends(get_current_use
         "UPDATE registro SET nombre_usuario = ?, correo_electronico = ? WHERE id_usuario = ?",
         (body.nombre, body.email, user["id"]),
     )
-    return {"message": "Perfil actualizado.", "user": {"nombre": body.nombre, "email": body.email}}
+    return {
+        "message": "Perfil actualizado.", 
+        "user": {
+            "id": user["id"],
+            "nombre": body.nombre, 
+            "email": body.email,
+            "rol": user.get("rol", "cliente")
+        }
+    }

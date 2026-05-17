@@ -1,35 +1,39 @@
-# 🚀 Guía de Despliegue en Vercel - Clear Path (Jud)
+# Guía de Despliegue en Vercel - Clear Path (Jud)
 
-Esta guía explica cómo publicar la interfaz web de Clear Path en Vercel para que tus compañeros puedan ver el diseño y la funcionalidad del frontend, incluso siendo una aplicación de escritorio.
+Este repositorio es un monorepo (Vite + FastAPI) y puede desplegarse en Vercel de dos formas:
 
-## Pasos para el Despliegue
+1) **Deploy completo (recomendado)**: Frontend + backend serverless en Vercel (`/api`).
+2) **Solo frontend**: Útil para revisión UX/UI sin backend (root directory `client/`).
 
-### 1. Preparar el Repositorio
-Asegúrate de que los cambios actuales (incluyendo `client/vercel.json`) estén subidos a tu repositorio de GitHub.
+## Opción A (recomendado): Deploy completo (frontend + /api)
 
-### 2. Importar en Vercel
-1. Ve a [vercel.com](https://vercel.com) e inicia sesión.
-2. Haz clic en **"Add New"** > **"Project"**.
-3. Selecciona tu repositorio de Clear Path.
-4. En la configuración del proyecto:
-   - **Root Directory**: Selecciona la carpeta `client`.
-   - **Framework Preset**: Vite.
-   - **Build Command**: `npm run build`.
-   - **Output Directory**: `dist`.
+### Requisitos
+- Existe `vercel.json` en la raíz del repo (build y rewrites).
+- El backend se expone como Function en `api/index.py`, que exporta `app` (FastAPI).
 
-### 3. Variables de Entorno (Opcional)
-Si el frontend necesita conectarse a una API externa o tiene configuraciones específicas, añádelas en la sección **"Environment Variables"** de Vercel.
+### Pasos en Vercel (Dashboard)
+1. Importa el repositorio en Vercel (**Add New → Project**).
+2. En **Root Directory**, selecciona la **raíz del repo** (no `client/`).
+3. Deja que Vercel use la configuración del repo:
+   - **Build Command**: `npm run build:vercel`
+   - **Output Directory**: `client/dist`
+4. (Opcional) Variables de entorno:
+   - `GROQ_API_KEY` (si quieres habilitar el chatbot en producción)
+5. Deploy.
 
-### 4. Desplegar
-Haz clic en **"Deploy"**. En unos minutos, tendrás una URL pública (ej. `clear-path-jud.vercel.app`) que podrás compartir.
+### Qué esperar
+- La SPA corre en `/`
+- El backend (FastAPI) corre en `/api/*` (por ejemplo `/api/health`)
+- En Vercel se usa `database/static_demo.db` si existe (modo solo lectura)
 
----
+## Opción B: Solo frontend (sin /api)
 
-## ⚠️ Notas Importantes
-- **Backend Local**: Como es una app de escritorio, el backend de Python corre localmente. La versión de Vercel mostrará la interfaz, pero las llamadas a la API fallarán a menos que se configure un backend en la nube o se usen datos de prueba (mocks).
-- **Solo Frontend**: Este despliegue es ideal para revisiones de diseño (UX/UI) y flujo de navegación.
+1. Importa el repo en Vercel.
+2. En **Root Directory**, selecciona `client/`.
+3. Configura:
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+4. Deploy.
 
----
-
-## 💡 Sugerencia para el Equipo
-Si quieren ver cómo funciona con datos reales sin instalar Python, podemos configurar un **Mock Service Worker (MSW)** o un backend simple en Vercel Functions para simular las respuestas de la base de datos.
+## Notas importantes
+- Si el frontend llama a endpoints reales, el modo “solo frontend” fallará a menos que uses mocks o apuntes a una API pública.

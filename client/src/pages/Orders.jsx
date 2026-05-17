@@ -9,13 +9,7 @@ import Dialog from '../components/Dialog';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { assetUrl } from '../utils/assetUrl';
-
-// Build the public verification URL for QR codes
-const getVerifyUrl = (id) => {
-    // Hardcoded production URL for real-world functionality
-    const base = 'https://jud-inky.vercel.app';
-    return `${base}/verify/${id}`;
-};
+import { getVerifyUrl } from '../utils/publicVerifyUrl';
 
 const getInvoiceItemImage = (item) => {
     const imageUrl = typeof item?.imagen_url === 'string' ? item.imagen_url.trim() : '';
@@ -246,7 +240,8 @@ const Orders = () => {
             setTimeout(() => {
                 const element = document.getElementById('order-invoice-template');
                 const opt = {
-                    margin: 1,
+                    // Use margin 0 so the A4-sized template isn't cropped by pdf margins.
+                    margin: 0,
                     filename: `Factura_Pedido_${order.id_pedido}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2, useCORS: true, letterRendering: true },
@@ -298,18 +293,18 @@ const Orders = () => {
 
     if (loading) {
         return (
-            <div className="h-full flex items-center justify-center bg-bg-void">
+            <div className="h-full flex items-center justify-center bg-forest-void">
                 <Loader2 className="w-10 h-10 text-leaf-400 animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="p-10 font-body bg-bg-void min-h-screen text-text-primary relative overflow-hidden">
+        <div className="p-10 font-body bg-forest-void min-h-screen text-text-primary relative overflow-hidden">
             <div className="absolute left-[-9999px] top-0">
                 <div
                     id="order-invoice-template"
-                    className="w-[19cm] min-h-[29.7cm] bg-white text-[#0D1712] p-14 flex flex-col font-sans box-border overflow-hidden"
+                    className="w-[19cm] min-h-[29.7cm] bg-white text-[#0D1712] p-14 flex flex-col font-sans box-border overflow-visible"
                     style={{ pageBreakInside: 'avoid' }}
                 >
                     <div className="flex justify-between items-start border-b-2 border-[#52B788] pb-8 mb-10">
@@ -381,7 +376,10 @@ const Orders = () => {
                         </div>
                     </div>
 
-                    <div className="mt-auto pt-10 border-t border-gray-100 flex justify-between items-center">
+                    <div
+                        className="mt-auto pt-10 border-t border-gray-100 flex justify-between items-center pdf-avoid-break"
+                        style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}
+                    >
                         <div className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">
                             Factura generada por Clear Path · Huella Verde
                         </div>
@@ -392,7 +390,7 @@ const Orders = () => {
                                 bgColor="#ffffff"
                                 fgColor="#0D1712"
                                 level="M"
-                                includeMargin={false}
+                                includeMargin={true}
                             />
                             <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest">Escanear para verificar</span>
                         </div>
@@ -408,7 +406,7 @@ const Orders = () => {
                     <h2 className="text-4xl font-display font-bold tracking-tight">Historial de Pedidos</h2>
                 </div>
                 <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
-                    <div className="bg-bg-elevated border border-leaf-900/30 p-4 rounded-2xl flex items-center gap-4 focus-within:border-leaf-400/50 transition-all">
+                    <div className="bg-forest-elevated border border-leaf-900/30 p-4 rounded-2xl flex items-center gap-4 focus-within:border-leaf-400/50 transition-all">
                         <Search size={18} className="text-leaf-400/40" />
                         <input
                             type="text"
@@ -447,7 +445,7 @@ const Orders = () => {
                                 </td>
                                 <td className="p-8">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-2xl bg-bg-elevated border border-leaf-900/30 flex items-center justify-center text-leaf-400 group-hover:border-leaf-400/50 transition-all">
+                                        <div className="w-10 h-10 rounded-2xl bg-forest-elevated border border-leaf-900/30 flex items-center justify-center text-leaf-400 group-hover:border-leaf-400/50 transition-all">
                                             <User size={18} />
                                         </div>
                                         <div>
@@ -457,7 +455,7 @@ const Orders = () => {
                                     </div>
                                 </td>
                                 <td className="p-8 text-center">
-                                    <div className="inline-flex items-center gap-2 text-[11px] font-black text-leaf-400/60 bg-bg-elevated border border-leaf-900/10 px-4 py-2 rounded-xl">
+                                    <div className="inline-flex items-center gap-2 text-[11px] font-black text-leaf-400/60 bg-forest-elevated border border-leaf-900/10 px-4 py-2 rounded-xl">
                                         <Calendar size={12} />
                                         {new Date(order.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                                     </div>
@@ -480,7 +478,7 @@ const Orders = () => {
                                             aria-label={`Descargar factura del pedido ${order.id_pedido}`}
                                             onClick={() => handleDownloadInvoice(order)}
                                             disabled={isDownloadingInvoice}
-                                            className="p-4 bg-bg-elevated border border-leaf-900/30 text-leaf-400 rounded-2xl hover:bg-leaf-400 hover:text-bg-void transition-all active:scale-95 shadow-lg group-hover:border-leaf-400 disabled:opacity-50"
+                                            className="p-4 bg-forest-elevated border border-leaf-900/30 text-leaf-400 rounded-2xl hover:bg-leaf-400 hover:text-forest-void transition-all active:scale-95 shadow-lg group-hover:border-leaf-400 disabled:opacity-50"
                                         >
                                             <Download size={20} />
                                         </button>
@@ -488,7 +486,7 @@ const Orders = () => {
                                             type="button"
                                             aria-label={`Ver detalle del pedido ${order.id_pedido}`}
                                             onClick={() => setSelectedOrder(order)}
-                                            className="p-4 bg-bg-elevated border border-leaf-900/30 text-leaf-400 rounded-2xl hover:bg-leaf-400 hover:text-bg-void transition-all active:scale-95 shadow-lg group-hover:border-leaf-400"
+                                            className="p-4 bg-forest-elevated border border-leaf-900/30 text-leaf-400 rounded-2xl hover:bg-leaf-400 hover:text-forest-void transition-all active:scale-95 shadow-lg group-hover:border-leaf-400"
                                         >
                                             <ArrowUpRight size={20} />
                                         </button>
@@ -497,7 +495,7 @@ const Orders = () => {
                                             aria-label={`Cancelar pedido ${order.id_pedido}`}
                                             onClick={() => handleCancelOrder(order)}
                                             disabled={cancellingOrderId === order.id_pedido}
-                                            className="p-4 bg-bg-elevated border border-red-900/30 text-red-400 rounded-2xl hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-lg group-hover:border-red-400/50 disabled:opacity-50"
+                                            className="p-4 bg-forest-elevated border border-red-900/30 text-red-400 rounded-2xl hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-lg group-hover:border-red-400/50 disabled:opacity-50"
                                         >
                                             {cancellingOrderId === order.id_pedido ? <Loader2 size={20} className="animate-spin" /> : <Ban size={20} />}
                                         </button>
@@ -525,11 +523,11 @@ const Orders = () => {
                         <select
                             value=""
                             onChange={(event) => handleAddItem(event.target.value)}
-                            className="w-full bg-bg-void border border-leaf-900/30 rounded-2xl p-5 text-sm outline-none focus:border-leaf-400 transition-all appearance-none cursor-pointer"
+                            className="w-full bg-forest-void border border-leaf-900/30 rounded-2xl p-5 text-sm outline-none focus:border-leaf-400 transition-all appearance-none cursor-pointer"
                         >
                             <option value="" disabled>Seleccione un producto del catálogo...</option>
                             {inventory.map((product) => (
-                                <option key={product.id_producto} value={product.id_producto} className="bg-bg-void">
+                                <option key={product.id_producto} value={product.id_producto} className="bg-forest-void">
                                     {product.producto} - ${product.precio} (Stock: {product.stock})
                                 </option>
                             ))}
@@ -540,7 +538,7 @@ const Orders = () => {
                         <p className="text-[10px] font-black text-leaf-400/60 uppercase tracking-widest ml-1">Detalle del Pedido</p>
                         <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                             {newOrder.items.map((item, index) => (
-                                <div key={item.id_producto} className="flex items-center justify-between p-4 bg-bg-void border border-leaf-900/20 rounded-2xl">
+                                <div key={item.id_producto} className="flex items-center justify-between p-4 bg-forest-void border border-leaf-900/20 rounded-2xl">
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-leaf-400/10 flex items-center justify-center text-leaf-400">
                                             <Package size={14} />
@@ -551,7 +549,7 @@ const Orders = () => {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4">
-                                        <div className="flex items-center bg-bg-void border border-leaf-900/30 rounded-xl px-2">
+                                        <div className="flex items-center bg-forest-void border border-leaf-900/30 rounded-xl px-2">
                                             <button type="button" onClick={() => handleQuantityChange(index, -1)} className="p-2 text-leaf-400 hover:text-white">-</button>
                                             <span className="w-8 text-center text-xs font-bold">{item.cantidad}</span>
                                             <button type="button" onClick={() => handleQuantityChange(index, 1)} className="p-2 text-leaf-400 hover:text-white">+</button>
@@ -583,7 +581,7 @@ const Orders = () => {
                                     value={paymentInfo.cardHolder}
                                     onChange={(e) => setPaymentInfo({...paymentInfo, cardHolder: e.target.value})}
                                     placeholder="Juan Pérez"
-                                    className="w-full bg-bg-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all"
+                                    className="w-full bg-forest-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -597,7 +595,7 @@ const Orders = () => {
                                         setPaymentInfo({...paymentInfo, cardNumber: val.match(/.{1,4}/g)?.join(' ') || val});
                                     }}
                                     placeholder="0000 0000 0000 0000"
-                                    className="w-full bg-bg-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all font-mono"
+                                    className="w-full bg-forest-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all font-mono"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -612,7 +610,7 @@ const Orders = () => {
                                         setPaymentInfo({...paymentInfo, expiry: val});
                                     }}
                                     placeholder="MM/AA"
-                                    className="w-full bg-bg-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all"
+                                    className="w-full bg-forest-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -623,7 +621,7 @@ const Orders = () => {
                                     value={paymentInfo.cvv}
                                     onChange={(e) => setPaymentInfo({...paymentInfo, cvv: e.target.value.replace(/\D/g, '').substring(0, 3)})}
                                     placeholder="***"
-                                    className="w-full bg-bg-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all"
+                                    className="w-full bg-forest-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all"
                                 />
                             </div>
                             <div className="space-y-2 md:col-span-2">
@@ -634,7 +632,7 @@ const Orders = () => {
                                     value={paymentInfo.phone}
                                     onChange={(e) => setPaymentInfo({...paymentInfo, phone: e.target.value})}
                                     placeholder="+1 (555) 000-0000"
-                                    className="w-full bg-bg-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all"
+                                    className="w-full bg-forest-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all"
                                 />
                             </div>
                         </div>
@@ -656,7 +654,7 @@ const Orders = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting || newOrder.items.length === 0}
-                                className="bg-leaf-400 text-bg-void px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-glow hover:scale-105 transition-all disabled:opacity-50"
+                                className="bg-leaf-400 text-forest-void px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-glow hover:scale-105 transition-all disabled:opacity-50"
                             >
                                 {isSubmitting ? 'Procesando...' : 'Confirmar Pedido'}
                             </button>
@@ -669,19 +667,19 @@ const Orders = () => {
                 {selectedOrder && (
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-bg-void border border-leaf-900/20 p-4 rounded-2xl">
+                            <div className="bg-forest-void border border-leaf-900/20 p-4 rounded-2xl">
                                 <p className="text-[10px] uppercase tracking-widest text-leaf-400/50 font-black">Cliente</p>
                                 <p className="font-bold text-text-primary mt-1">{selectedOrder.cliente || 'Consumidor Final'}</p>
                             </div>
-                            <div className="bg-bg-void border border-leaf-900/20 p-4 rounded-2xl">
+                            <div className="bg-forest-void border border-leaf-900/20 p-4 rounded-2xl">
                                 <p className="text-[10px] uppercase tracking-widest text-leaf-400/50 font-black">Fecha</p>
                                 <p className="font-bold text-text-primary mt-1">{new Date(selectedOrder.fecha).toLocaleDateString('es-ES')}</p>
                             </div>
-                            <div className="bg-bg-void border border-leaf-900/20 p-4 rounded-2xl">
+                            <div className="bg-forest-void border border-leaf-900/20 p-4 rounded-2xl">
                                 <p className="text-[10px] uppercase tracking-widest text-leaf-400/50 font-black">Total</p>
                                 <p className="font-bold text-text-primary mt-1">${Number(selectedOrder.total || 0).toFixed(2)}</p>
                             </div>
-                            <div className="bg-bg-void border border-leaf-900/20 p-4 rounded-2xl">
+                            <div className="bg-forest-void border border-leaf-900/20 p-4 rounded-2xl">
                                 <p className="text-[10px] uppercase tracking-widest text-leaf-400/50 font-black">Estado</p>
                                 <p className="font-bold text-leaf-400 mt-1">Completado</p>
                             </div>
@@ -691,7 +689,7 @@ const Orders = () => {
                                 type="button"
                                 onClick={() => handleDownloadInvoice(selectedOrder)}
                                 disabled={isDownloadingInvoice}
-                                className="flex-1 bg-leaf-400 text-bg-void font-black py-4 rounded-2xl hover:bg-leaf-300 transition-all shadow-glow flex items-center justify-center gap-2 disabled:opacity-60"
+                                className="flex-1 bg-leaf-400 text-forest-void font-black py-4 rounded-2xl hover:bg-leaf-300 transition-all shadow-glow flex items-center justify-center gap-2 disabled:opacity-60"
                             >
                                 <Download size={18} /> Factura
                             </button>

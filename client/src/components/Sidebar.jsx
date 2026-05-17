@@ -62,7 +62,7 @@ const Sidebar = () => {
 
             <aside 
                 ref={containerRef} 
-                className={`fixed md:relative z-40 w-72 bg-bg-primary border-r border-leaf-900/30 h-screen flex flex-col font-body transition-transform duration-500 ease-out ${
+                className={`fixed md:relative z-40 w-72 bg-forest-primary border-r border-leaf-900/30 h-screen flex flex-col font-body transition-transform duration-500 ease-out ${
                     isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
                 }`}
             >
@@ -71,7 +71,7 @@ const Sidebar = () => {
             
             <div className="p-8 pb-4 flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-3">
-                    <img src={assetUrl('/logo.jpeg')} className="w-10 h-10 rounded-xl object-cover border border-leaf-400/20" alt="Logo" />
+                    <img src={assetUrl('/logo.png')} className="w-10 h-10 rounded-xl object-cover border border-leaf-400/20" alt="Logo" />
                     <div>
                         <h1 className="text-xl font-display font-bold leading-tight tracking-tight text-text-primary">Clear Path</h1>
                         <p className="text-[10px] uppercase tracking-[0.2em] text-leaf-400/60 font-bold">Huella Verde</p>
@@ -96,8 +96,8 @@ const Sidebar = () => {
                                     `flex items-center gap-3 p-3.5 rounded-xl transition-all duration-300 group nav-anim ${
                                         isActive 
                                         ? 'bg-leaf-700/20 border border-leaf-400/30 text-leaf-400' 
-                                        : 'text-text-secondary hover:text-text-primary hover:bg-bg-hover border border-transparent hover:border-leaf-400/20'
-                                    } ${item.special ? 'mb-6 mt-2 bg-bg-elevated border border-leaf-900/50 shadow-lg' : ''}`
+                                        : 'text-text-secondary hover:text-text-primary hover:bg-forest-hover border border-transparent hover:border-leaf-400/20'
+                                    } ${item.special ? 'mb-6 mt-2 bg-forest-elevated border border-leaf-900/50 shadow-lg' : ''}`
                                 }
                             >
                                 <item.icon

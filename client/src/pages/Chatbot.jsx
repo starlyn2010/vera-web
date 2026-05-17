@@ -216,14 +216,14 @@ const Chatbot = () => {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-bg-void font-body relative overflow-hidden">
+        <div className="flex flex-col h-screen bg-forest-void font-body relative overflow-hidden">
             <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-leaf-glow/5 blur-[120px] rounded-full pointer-events-none"></div>
             <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-leaf-400/5 blur-[100px] rounded-full pointer-events-none"></div>
 
             <header className="z-10 p-6 flex flex-col items-center border-b border-leaf-900/30 glass">
-                <div className="flex items-center gap-3 bg-bg-elevated border border-leaf-400/20 px-5 py-2 rounded-full shadow-glow">
+                <div className="flex items-center gap-3 bg-forest-elevated border border-leaf-400/20 px-5 py-2 rounded-full shadow-glow">
                     <div className="relative">
-                        <img src={assetUrl('/logo.jpeg')} className="w-8 h-8 rounded-full object-cover border border-leaf-400/30" alt="Jud" />
+                        <img src={assetUrl('/logo.png')} className="w-8 h-8 rounded-full object-cover border border-leaf-400/30" alt="Jud" />
                         <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-leaf-glow rounded-full border-2 border-bg-elevated"></span>
                     </div>
                     <div className="flex flex-col">
@@ -241,11 +241,11 @@ const Chatbot = () => {
                     >
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg border ${
                             msg.role === 'assistant'
-                                ? 'bg-bg-elevated border-leaf-400/20'
-                                : 'bg-leaf-400 border-leaf-400/50 text-bg-void'
+                                ? 'bg-forest-elevated border-leaf-400/20'
+                                : 'bg-leaf-400 border-leaf-400/50 text-forest-void'
                         }`}>
                             {msg.role === 'assistant'
-                                ? <img src={assetUrl('/logo.jpeg')} className="w-full h-full rounded-xl object-cover" alt="Jud" />
+                                ? <img src={assetUrl('/logo.png')} className="w-full h-full rounded-xl object-cover" alt="Jud" />
                                 : <User size={20} />
                             }
                         </div>
@@ -256,7 +256,7 @@ const Chatbot = () => {
                             <div className={`p-5 rounded-2xl text-sm leading-relaxed shadow-sm ${
                                 msg.role === 'assistant'
                                     ? `glass font-display text-[16px] text-text-primary ${msg.isError ? 'border-red-500/30' : 'border-leaf-900/30'}`
-                                    : 'bg-bg-elevated border border-leaf-400/10 text-text-primary'
+                                    : 'bg-forest-elevated border border-leaf-400/10 text-text-primary'
                             }`}>
                                 {msg.isError && <AlertCircle size={16} className="inline mr-2 text-red-400" />}
                                 {msg.role === 'assistant' ? renderMarkdownLite(msg.content) : <span className="whitespace-pre-wrap">{msg.content}</span>}
@@ -267,8 +267,8 @@ const Chatbot = () => {
 
                 {isLoading && (
                     <div className="flex gap-4 max-w-[80%]">
-                        <div className="w-10 h-10 rounded-xl bg-bg-elevated border border-leaf-400/20 flex items-center justify-center overflow-hidden">
-                            <img src={assetUrl('/logo.jpeg')} className="w-full h-full object-cover animate-pulse" alt="Jud" />
+                        <div className="w-10 h-10 rounded-xl bg-forest-elevated border border-leaf-400/20 flex items-center justify-center overflow-hidden">
+                            <img src={assetUrl('/logo.png')} className="w-full h-full object-cover animate-pulse" alt="Jud" />
                         </div>
                         <div className="flex flex-col gap-1.5">
                             <span className="text-[10px] font-bold text-leaf-400/60 uppercase">Jud está pensando...</span>
@@ -285,7 +285,7 @@ const Chatbot = () => {
             <footer className="p-8 z-10 bg-gradient-to-t from-bg-void via-bg-void to-transparent">
                 <form
                     onSubmit={handleSend}
-                    className="max-w-4xl mx-auto flex items-center gap-3 bg-bg-elevated border border-leaf-400/20 p-2 pl-6 rounded-[24px] focus-within:border-leaf-400/50 shadow-glow transition-all duration-300"
+                    className="max-w-4xl mx-auto flex items-center gap-3 bg-forest-elevated border border-leaf-400/20 p-2 pl-6 rounded-[24px] focus-within:border-leaf-400/50 shadow-glow transition-all duration-300"
                 >
                     <input
                         type="text"
@@ -301,7 +301,7 @@ const Chatbot = () => {
                         className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                             isLoading || !input.trim()
                                 ? 'bg-leaf-900/30 text-leaf-100/20'
-                                : 'bg-leaf-400 text-bg-void hover:scale-105 active:scale-95 shadow-glow'
+                                : 'bg-leaf-400 text-forest-void hover:scale-105 active:scale-95 shadow-glow'
                         }`}
                     >
                         <Send size={20} />

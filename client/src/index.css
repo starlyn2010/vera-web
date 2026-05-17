@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* PDF/Invoice rendering helpers (html2pdf + html2canvas) */
+.pdf-avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
 :root, .dark {
     /* ─── CORE BLACKS (Forest Night) ─── */
     --bg-void:          hsl(160, 30%, 4%);     /* #080F0B — deepest background */
@@ -16,7 +22,6 @@
     --bg-hover-hsl:     153 20% 14%;
 
     /* ─── GREENS (Bioluminescent Scale) ─── */
-    --green-900:        hsl(158, 40%, 15%);    /* deep moss */
     --green-900-hsl:    158 40% 15%;
     --green-700-hsl:    155 45% 25%;
     --green-500-hsl:    152 55% 40%;

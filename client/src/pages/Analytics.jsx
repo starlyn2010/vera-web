@@ -100,13 +100,13 @@ const Analytics = () => {
     };
 
     if (loading) return (
-        <div className="h-full flex items-center justify-center bg-bg-void">
+        <div className="h-full flex items-center justify-center bg-forest-void">
             <Loader2 className="w-12 h-12 text-leaf-400 animate-spin" />
         </div>
     );
 
     return (
-        <div className="p-10 font-body bg-bg-void min-h-screen text-text-primary relative overflow-hidden">
+        <div className="p-10 font-body bg-forest-void min-h-screen text-text-primary relative overflow-hidden">
              {/* Bioluminescent blobs */}
              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-leaf-400/5 blur-[120px] rounded-full pointer-events-none"></div>
 
