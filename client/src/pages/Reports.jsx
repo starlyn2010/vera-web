@@ -78,6 +78,7 @@ const Reports = () => {
             // Auto-trigger download for the newly generated report
             handleDownload({
                 id_reporte: response.data.reportId,
+                verifyToken: response.data.verifyToken,
                 tipo,
                 periodo,
                 fecha_generacion: new Date().toISOString(),
@@ -114,7 +115,8 @@ const Reports = () => {
             };
 
             // Register report in backend (and Supabase) for QR verification
-            await api.post('/reports/custom', tempReport);
+            const registerRes = await api.post('/reports/custom', tempReport);
+            if (registerRes?.data?.verifyToken) tempReport.verifyToken = registerRes.data.verifyToken;
 
             setCurrentReportData(tempReport);
             setIsCustomReportOpen(false);
@@ -289,7 +291,7 @@ const Reports = () => {
                         </div>
                         <div className="flex flex-col items-center gap-1">
                             <QRCodeSVG
-                                value={getVerifyUrl(currentReportData?.id_reporte || 'preview')}
+                                value={getVerifyUrl(currentReportData?.verifyToken || currentReportData?.id_reporte || 'preview')}
                                 size={72}
                                 bgColor="#ffffff"
                                 fgColor="#0D1712"

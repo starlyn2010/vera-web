@@ -17,7 +17,9 @@ const PublicVerify = () => {
                 // Always use current origin — the API lives on the same domain as the page.
                 // Do NOT use VITE_PUBLIC_BASE_URL here since it may be misconfigured.
                 const baseUrl = window.location.origin;
-                const res = await fetch(`${baseUrl}/api/verify/${reportId}`);
+                const isToken = typeof reportId === 'string' && reportId.includes('.');
+                const endpoint = isToken ? `/api/verify/token/${reportId}` : `/api/verify/${reportId}`;
+                const res = await fetch(`${baseUrl}${endpoint}`);
                 if (!res.ok) throw new Error("Not found");
                 
                 const data = await res.json();

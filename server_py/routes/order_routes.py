@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from database import query, TransactionContext
 from auth import get_current_user
 from services.supabase_sync import sync_document_to_supabase
+from services.verification_tokens import create_verification_token
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
@@ -211,7 +212,9 @@ async def get_order_details(order_id: int, user: dict = Depends(get_current_user
             }
         ]
 
-    return {**orders[0], "items": items}
+    payload = {**orders[0], "items": items}
+    verify_token = create_verification_token(f"order-{order_id}", "invoice", payload)
+    return {**payload, "verifyToken": verify_token}
 
 
 # ── DELETE /{order_id} — Cancel Order ────────────────────────────────────────

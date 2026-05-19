@@ -52,6 +52,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from services.verification_tokens import decode_verification_token
 
 # ── DB init (sync at startup) ────────────────────────────────────────────────
 from database import init_schema_sync
@@ -137,6 +138,21 @@ async def debug_routes():
         if hasattr(route, 'methods') and hasattr(route, 'path'):
             routes.append({"path": route.path, "methods": list(route.methods)})
     return {"routes": routes, "errors": _router_errors}
+
+
+@app.get("/api/verify/token/{token}")
+async def verify_document_token(token: str):
+    """
+    Public verification endpoint using a signed token embedded in the QR URL.
+    This avoids relying on external persistence (Supabase) for "always verifiable" links.
+    """
+    from fastapi import HTTPException
+
+    try:
+        data = decode_verification_token(token)
+        return {"id": data.get("id"), "tipo": data.get("tipo"), "payload": data.get("payload")}
+    except Exception:
+        raise HTTPException(status_code=400, detail="Token de verificación inválido o expirado.")
 
 
 @app.get("/api/verify/{report_id}")
