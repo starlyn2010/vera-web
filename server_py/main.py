@@ -138,6 +138,18 @@ async def debug_routes():
     return {"routes": routes, "errors": _router_errors}
 
 
+@app.get("/api/verify-test/{doc_id}")
+async def verify_test(doc_id: str, request: Request):
+    """Direct test endpoint to verify path handling on Vercel."""
+    return {
+        "received_doc_id": doc_id,
+        "request_path": str(request.url.path),
+        "request_url": str(request.url),
+        "scope_path": request.scope.get("path", "N/A"),
+        "scope_root_path": request.scope.get("root_path", "N/A"),
+    }
+
+
 @app.get("/")
 async def root():
     return {"message": "Clear Path API is running ✅ (Python/FastAPI)"}
