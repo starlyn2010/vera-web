@@ -111,7 +111,7 @@ _safe_import_router('routes.project_routes', 'projects')
 _safe_import_router('routes.analytics_routes', 'analytics')
 _safe_import_router('routes.chatbot_routes', 'chatbot')
 _safe_import_router('routes.report_routes', 'reports')
-_safe_import_router('routes.verify_routes', 'verify')
+# verify endpoint is defined directly on app (below) for Vercel compatibility
 
 
 # ── Health ───────────────────────────────────────────────────────────────────
@@ -138,16 +138,59 @@ async def debug_routes():
     return {"routes": routes, "errors": _router_errors}
 
 
-@app.get("/api/verify-test/{doc_id}")
-async def verify_test(doc_id: str, request: Request):
-    """Direct test endpoint to verify path handling on Vercel."""
-    return {
-        "received_doc_id": doc_id,
-        "request_path": str(request.url.path),
-        "request_url": str(request.url),
-        "scope_path": request.scope.get("path", "N/A"),
-        "scope_root_path": request.scope.get("root_path", "N/A"),
+@app.get("/api/verify/{report_id}")
+async def verify_document_direct(report_id: str):
+    """
+    Public verification endpoint — defined directly on app for Vercel compatibility.
+    Queries Supabase to retrieve the verification payload.
+    Checks for different ID formats (exact, order-*, report-*) to resolve collisions.
+    """
+    import json
+    import urllib.request
+    import urllib.error
+    import urllib.parse
+    from fastapi import HTTPException
+
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
+
+    if not supabase_url or not supabase_key:
+        raise HTTPException(status_code=500, detail="Verification service is not configured (missing Supabase keys).")
+
+    supabase_url = supabase_url.rstrip("/")
+    endpoint = f"{supabase_url}/rest/v1/verificaciones?select=*"
+
+    or_query = f"or=(id.eq.{report_id},id.eq.order-{report_id},id.eq.report-{report_id})"
+    encoded_query = urllib.parse.quote(or_query, safe='=(),.-')
+    full_url = f"{endpoint}&{encoded_query}"
+
+    headers = {
+        "apikey": supabase_key,
+        "Authorization": f"Bearer {supabase_key}",
+        "Accept": "application/json"
     }
+
+    try:
+        req = urllib.request.Request(full_url, headers=headers, method="GET")
+        with urllib.request.urlopen(req, timeout=5) as response:
+            if response.status == 200:
+                data = json.loads(response.read().decode('utf-8'))
+                if data and len(data) > 0:
+                    return data[0]
+                else:
+                    raise HTTPException(status_code=404, detail="Documento no encontrado o no válido.")
+            else:
+                raise HTTPException(status_code=response.status, detail="Error retrieving document from database.")
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            raise HTTPException(status_code=404, detail="Documento no encontrado o no válido.")
+        raise HTTPException(status_code=e.code, detail=f"Database error: {e.reason}")
+    except urllib.error.URLError as e:
+        raise HTTPException(status_code=503, detail="Service unavailable (database connection failed).")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/")
