@@ -51,6 +51,7 @@ else:
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # ── DB init (sync at startup) ────────────────────────────────────────────────
 from database import init_schema_sync
@@ -200,12 +201,20 @@ async def root():
 
 # ── 404 Handler ──────────────────────────────────────────────────────────────
 
-@app.exception_handler(404)
-async def not_found(request: Request, exc):
-    return JSONResponse(
-        status_code=404,
-        content={"error": f"Ruta no encontrada: {request.method} {request.url.path}"},
-    )
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    # Preserve meaningful 404 details raised intentionally by endpoints (e.g. verification "not found")
+    # while still returning a useful message for truly unknown routes.
+    if exc.status_code == 404 and getattr(exc, "detail", None) and exc.detail != "Not Found":
+        return JSONResponse(status_code=404, content={"detail": exc.detail})
+
+    if exc.status_code == 404:
+        return JSONResponse(
+            status_code=404,
+            content={"error": f"Ruta no encontrada: {request.method} {request.url.path}"},
+        )
+
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
 # ── Global Error Handler ────────────────────────────────────────────────────
