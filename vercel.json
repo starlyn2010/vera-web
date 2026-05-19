@@ -6,9 +6,16 @@
   "functions": {
     "api/index.py": {
       "includeFiles": "database/**"
+    },
+    "api/verify/[report_id].py": {
+      "includeFiles": "database/**"
     }
   },
   "rewrites": [
+    {
+      "source": "/api/verify/:report_id",
+      "destination": "/api/verify/[report_id]"
+    },
     {
       "source": "/api/(.*)",
       "destination": "/api/index.py"
