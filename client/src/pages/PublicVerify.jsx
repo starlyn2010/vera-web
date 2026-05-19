@@ -14,8 +14,9 @@ const PublicVerify = () => {
                 return;
             }
             try {
-                // Determine base URL, works for both localhost and Vercel
-                const baseUrl = import.meta.env.VITE_PUBLIC_BASE_URL || window.location.origin;
+                // Always use current origin — the API lives on the same domain as the page.
+                // Do NOT use VITE_PUBLIC_BASE_URL here since it may be misconfigured.
+                const baseUrl = window.location.origin;
                 const res = await fetch(`${baseUrl}/api/verify/${reportId}`);
                 if (!res.ok) throw new Error("Not found");
                 

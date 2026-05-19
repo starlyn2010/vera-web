@@ -87,23 +87,31 @@ async def log_requests(request: Request, call_next):
 # La ruta /api/health se define más adelante con más detalles
 
 # ── Import and register routers ──────────────────────────────────────────────
-from routes.auth_routes import router as auth_router
-from routes.inventory_routes import router as inventory_router
-from routes.order_routes import router as order_router
-from routes.project_routes import router as project_router
-from routes.analytics_routes import router as analytics_router
-from routes.chatbot_routes import router as chatbot_router
-from routes.report_routes import router as report_routes
-from routes.verify_routes import router as verify_router
+_router_errors = []
 
-app.include_router(auth_router)
-app.include_router(inventory_router)
-app.include_router(order_router)
-app.include_router(project_router)
-app.include_router(analytics_router)
-app.include_router(chatbot_router)
-app.include_router(report_routes)
-app.include_router(verify_router, prefix="/api/verify")
+def _safe_import_router(module_path, name, prefix=None):
+    """Import and register a router, logging any errors instead of crashing."""
+    try:
+        import importlib
+        mod = importlib.import_module(module_path)
+        r = getattr(mod, 'router')
+        if prefix:
+            app.include_router(r, prefix=prefix)
+        else:
+            app.include_router(r)
+        logging.info(f"Router '{name}' registered successfully.")
+    except Exception as e:
+        _router_errors.append(f"{name}: {e}")
+        logging.error(f"FAILED to import router '{name}' from '{module_path}': {e}", exc_info=True)
+
+_safe_import_router('routes.auth_routes', 'auth')
+_safe_import_router('routes.inventory_routes', 'inventory')
+_safe_import_router('routes.order_routes', 'orders')
+_safe_import_router('routes.project_routes', 'projects')
+_safe_import_router('routes.analytics_routes', 'analytics')
+_safe_import_router('routes.chatbot_routes', 'chatbot')
+_safe_import_router('routes.report_routes', 'reports')
+_safe_import_router('routes.verify_routes', 'verify', prefix='/api/verify')
 
 
 # ── Health ───────────────────────────────────────────────────────────────────
@@ -115,7 +123,19 @@ async def health():
         "service": "Clear Path API (Python/FastAPI)",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "groq": bool(os.getenv("GROQ_API_KEY")),
+        "router_errors": _router_errors if _router_errors else None,
+        "routes_count": len(app.routes),
     }
+
+
+@app.get("/api/debug/routes")
+async def debug_routes():
+    """Lists all registered routes for debugging."""
+    routes = []
+    for route in app.routes:
+        if hasattr(route, 'methods') and hasattr(route, 'path'):
+            routes.append({"path": route.path, "methods": list(route.methods)})
+    return {"routes": routes, "errors": _router_errors}
 
 
 @app.get("/")
