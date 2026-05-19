@@ -5,7 +5,7 @@ import urllib.request
 import urllib.error
 import urllib.parse
 
-router = APIRouter()
+router = APIRouter(prefix="/api/verify", tags=["verify"])
 
 @router.get("/{report_id}")
 async def verify_document(report_id: str):

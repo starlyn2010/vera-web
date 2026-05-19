@@ -111,7 +111,7 @@ _safe_import_router('routes.project_routes', 'projects')
 _safe_import_router('routes.analytics_routes', 'analytics')
 _safe_import_router('routes.chatbot_routes', 'chatbot')
 _safe_import_router('routes.report_routes', 'reports')
-_safe_import_router('routes.verify_routes', 'verify', prefix='/api/verify')
+_safe_import_router('routes.verify_routes', 'verify')
 
 
 # ── Health ───────────────────────────────────────────────────────────────────
