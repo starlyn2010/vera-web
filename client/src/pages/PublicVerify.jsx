@@ -37,13 +37,13 @@ const PublicVerify = () => {
                 {/* Logo Header */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center gap-3 mb-3">
-                        <img src="/logo.png" className="w-12 h-12 rounded-2xl object-cover shadow-lg" alt="Logo" />
+                        <img src="/logo.jpeg" className="w-12 h-12 rounded-2xl object-cover shadow-lg" alt="Clear Path" />
                         <h1 className="text-2xl font-bold text-white tracking-tight">
-                            Bio<span className="text-[#52B788]">Hands</span>
+                            Clear <span className="text-[#52B788]">Path</span>
                         </h1>
                     </div>
                     <p className="text-[10px] text-[#52B788]/60 font-bold uppercase tracking-[0.3em]">
-                        Sistema de Verificación Digital
+                        Verificación de Documentos
                     </p>
                 </div>
 
@@ -177,7 +177,7 @@ const PublicVerify = () => {
 
                 {/* Footer */}
                 <p className="text-center text-[9px] text-gray-600 mt-6">
-                    © 2026 BioHands Corporation. Sistema de Verificación en la Nube.
+                    © 2026 Clear Path. Sistema de verificación en la nube.
                 </p>
             </div>
         </div>
@@ -185,4 +185,3 @@ const PublicVerify = () => {
 };
 
 export default PublicVerify;
-

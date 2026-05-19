@@ -7,6 +7,9 @@ import threading
 
 logger = logging.getLogger("supabase_sync")
 
+def _is_vercel() -> bool:
+    return bool(os.getenv("VERCEL"))
+
 def _do_sync(doc_id: str, doc_tipo: str, payload: dict):
     """
     Synchronously pushes a document payload to Supabase using REST API.
@@ -21,13 +24,15 @@ def _do_sync(doc_id: str, doc_tipo: str, payload: dict):
 
     # Clean URL and prepare endpoint
     supabase_url = supabase_url.rstrip("/")
-    endpoint = f"{supabase_url}/rest/v1/verificaciones"
+    # Upsert by `id` so re-generating a QR/Factura/Reporte refreshes the payload
+    endpoint = f"{supabase_url}/rest/v1/verificaciones?on_conflict=id"
 
     headers = {
         "apikey": supabase_key,
         "Authorization": f"Bearer {supabase_key}",
         "Content-Type": "application/json",
-        "Prefer": "return=minimal" # Do not return the inserted row to save bandwidth
+        # Do not return the inserted row to save bandwidth, but allow upsert merges.
+        "Prefer": "resolution=merge-duplicates,return=minimal"
     }
 
     data = {
@@ -62,9 +67,13 @@ def sync_document_to_supabase(doc_id: str, doc_tipo: str, payload: dict):
     Fires off a background thread to sync the document to Supabase.
     This guarantees that the main FastAPI/SQLite transaction is not blocked by network latency.
     """
-    thread = threading.Thread(
-        target=_do_sync,
-        args=(doc_id, doc_tipo, payload),
-        daemon=True
-    )
+    # IMPORTANT:
+    # - On Vercel serverless, daemon threads may be terminated when the request finishes,
+    #   which means the sync might never happen. Run inline there.
+    # - On desktop/local, keep it async to avoid blocking UI / API latency.
+    if _is_vercel():
+        _do_sync(doc_id, doc_tipo, payload)
+        return
+
+    thread = threading.Thread(target=_do_sync, args=(doc_id, doc_tipo, payload), daemon=True)
     thread.start()
