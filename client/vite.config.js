@@ -10,7 +10,8 @@ export default defineConfig(({ command }) => ({
   root: path.dirname(fileURLToPath(new URL(import.meta.url))),
   // Dev (http://localhost) should use absolute URLs so assets work on nested SPA routes.
   // Build (Electron loadFile/file://) should use relative URLs so assets resolve from index.html.
-  base: command === 'build' ? './' : '/',
+  // Vercel build should use absolute URLs so nested routes like /verify/:id can load assets.
+  base: (command === 'build' && !process.env.VERCEL) ? './' : '/',
   plugins: [react()],
   server: {
     port: 5173,

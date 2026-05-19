@@ -13,15 +13,19 @@ export const getPublicBaseUrl = () => {
   if (envBase) return envBase;
 
   const origin = typeof window !== 'undefined' ? window.location?.origin : '';
-  // When running from file:// (e.g., Electron), origin can be "null".
-  if (!origin || origin === 'null') return '';
+  
+  // When running from Electron (file://) or if origin is missing/null, fallback to the production web domain
+  if (!origin || origin === 'null' || origin.startsWith('file://')) {
+    return 'https://jud-starlyn2010s-projects.vercel.app';
+  }
+  
   return origin;
 };
 
 export const getVerifyUrl = (id) => {
   const safeId = encodeURIComponent(String(id ?? '').trim() || 'preview');
   const base = getPublicBaseUrl();
-  // If we couldn't infer a base (e.g., Electron file://), keep it relative.
+  // If we somehow still don't have a base, use a relative path
   if (!base) return `/verify/${safeId}`;
   return `${base}/verify/${safeId}`;
 };
