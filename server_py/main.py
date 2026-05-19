@@ -93,7 +93,8 @@ from routes.order_routes import router as order_router
 from routes.project_routes import router as project_router
 from routes.analytics_routes import router as analytics_router
 from routes.chatbot_routes import router as chatbot_router
-from routes.report_routes import router as report_router
+from routes.report_routes import router as report_routes
+from routes.verify_routes import router as verify_router
 
 app.include_router(auth_router)
 app.include_router(inventory_router)
@@ -101,7 +102,8 @@ app.include_router(order_router)
 app.include_router(project_router)
 app.include_router(analytics_router)
 app.include_router(chatbot_router)
-app.include_router(report_router)
+app.include_router(report_routes)
+app.include_router(verify_router, prefix="/api/verify")
 
 
 # ── Health ───────────────────────────────────────────────────────────────────

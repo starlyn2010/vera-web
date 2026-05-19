@@ -113,6 +113,9 @@ const Reports = () => {
                 summary: judReply
             };
 
+            // Register report in backend (and Supabase) for QR verification
+            await api.post('/reports/custom', tempReport);
+
             setCurrentReportData(tempReport);
             setIsCustomReportOpen(false);
             setCustomReportPrompt("");

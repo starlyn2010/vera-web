@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 from database import query, TransactionContext
 from auth import get_current_user
+from services.supabase_sync import sync_document_to_supabase
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
@@ -99,6 +100,20 @@ async def create_order(body: CreateOrderBody, user: dict = Depends(get_current_u
     order_id = await loop.run_in_executor(
         None, partial(_create_order_sync, body.model_dump(), normalized, final_total, user_id)
     )
+
+    # Fetch complete details for the public verification payload
+    try:
+        payload = await get_order_details(order_id, user)
+    except Exception:
+        # Fallback to minimal payload
+        payload = {
+            "id_pedido": order_id,
+            "total": final_total,
+            "items": normalized,
+            "recibo": f"REC-{order_id}"
+        }
+    
+    sync_document_to_supabase(f"order-{order_id}", "invoice", payload)
 
     return {"id_pedido": order_id, "message": "Order processed successfully"}
 
