@@ -28,11 +28,20 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
-            console.error(`Unauthorized request to: ${error.config?.url}`);
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.dispatchEvent(new Event('unauthorized'));
+        const status = error.response?.status;
+        const url = error.config?.url;
+        const detail = error.response?.data?.detail || error.response?.data?.error || '';
+
+        if (status === 401) {
+            console.error(`🔴 UNAUTHORIZED (401) at ${url}: ${detail}`);
+            // Only redirect if we are not already on the login page
+            if (window.location.pathname !== '/login') {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.dispatchEvent(new Event('unauthorized'));
+            }
+        } else if (status === 500) {
+            console.error(`🟠 SERVER ERROR (500) at ${url}: ${detail}`);
         }
         return Promise.reject(error);
     }

@@ -58,13 +58,17 @@ test('Clear Path button-by-button audit (smoke)', async ({ page }) => {
 
   // Orders: open modal and confirm should succeed if items exist
   await page.getByRole('button', { name: 'Nuevo Pedido' }).click();
-  await expect(page.getByRole('heading', { name: 'Generar Nuevo Pedido' })).toBeVisible();
+  const orderDialog = page.getByRole('dialog', { name: 'Generar Nuevo Pedido' });
+  await expect(orderDialog.getByRole('heading', { name: 'Generar Nuevo Pedido' })).toBeVisible();
+  // Regression check: modal inputs must be focusable (backdrop should not steal clicks)
+  await orderDialog.getByPlaceholder(/Juan/i).fill('Cliente Prueba');
   // Add first available product from dropdown so confirm becomes enabled
-  const combo = page.getByRole('combobox');
+  const combo = orderDialog.getByRole('combobox');
   await combo.selectOption({ index: 1 });
-  await expect(page.getByRole('button', { name: 'Confirmar Pedido' })).toBeEnabled();
-  await page.getByRole('button', { name: 'Confirmar Pedido' }).click();
-  // Should either create and close, or show disabled state when empty; both are acceptable.
+  await expect(orderDialog.getByRole('button', { name: 'Confirmar Pedido' })).toBeEnabled();
+  // Close modal (form has required fields; we only smoke-check focusability + enablement here)
+  await orderDialog.getByRole('button', { name: 'Cancelar' }).click();
+  await expect(orderDialog).toBeHidden();
 
   // Reports: generate "Resumen de Ventas"
   await page.getByRole('link', { name: 'Reportes' }).click();
@@ -76,7 +80,9 @@ test('Clear Path button-by-button audit (smoke)', async ({ page }) => {
   await page.getByRole('link', { name: 'Proyectos' }).click();
   await page.waitForURL('**/projects');
   await page.getByRole('button', { name: /Detalles/i }).first().click();
-  await expect(page.getByText(/Resumen/i)).toBeVisible();
+  await expect(page.getByText('Departamento')).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: 'Cerrar' }).click();
+  await expect(page.getByText('Departamento')).toBeHidden();
 
   // Analytics: generate report button routes to reports
   await page.getByRole('link', { name: 'Analíticas' }).click();

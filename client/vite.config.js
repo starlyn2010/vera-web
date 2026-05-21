@@ -16,7 +16,8 @@ export default defineConfig(({ command }) => ({
   server: {
     port: 5173,
     proxy: {
-      '/api': 'http://localhost:5000'
+      // Use 127.0.0.1 to avoid IPv6/localhost resolution edge cases on Windows.
+      '/api': 'http://127.0.0.1:5000'
     }
   }
 }))

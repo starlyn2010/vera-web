@@ -6,6 +6,7 @@ const PublicVerify = () => {
     const { reportId } = useParams();
     const [status, setStatus] = useState('loading'); // loading | verified | not_found
     const [docData, setDocData] = useState(null);
+    const [errorDetail, setErrorDetail] = useState(null);
 
     useEffect(() => {
         const verifyDoc = async () => {
@@ -18,15 +19,33 @@ const PublicVerify = () => {
                 // Do NOT use VITE_PUBLIC_BASE_URL here since it may be misconfigured.
                 const baseUrl = window.location.origin;
                 const isToken = typeof reportId === 'string' && reportId.includes('.');
-                const endpoint = isToken ? `/api/verify/token/${reportId}` : `/api/verify/${reportId}`;
+                const safeId = encodeURIComponent(reportId);
+                const endpoint = isToken ? `/api/verify/token/${safeId}` : `/api/verify/${safeId}`;
                 const res = await fetch(`${baseUrl}${endpoint}`);
-                if (!res.ok) throw new Error("Not found");
-                
+                if (!res.ok) {
+                    let detail = '';
+                    try {
+                        const errBody = await res.json();
+                        detail = errBody?.detail || errBody?.error || '';
+                    } catch {}
+
+                    if (res.status === 404) {
+                        setStatus('not_found');
+                        return;
+                    }
+
+                    setErrorDetail(detail || `Error ${res.status}`);
+                    setStatus('not_found');
+                    return;
+                }
+                 
                 const data = await res.json();
+                setErrorDetail(null);
                 setDocData(data);
                 setStatus('verified');
             } catch (err) {
                 console.error("Verification failed:", err);
+                setErrorDetail('No se pudo conectar al servicio de verificación.');
                 setStatus('not_found');
             }
         };
@@ -88,14 +107,14 @@ const PublicVerify = () => {
                                                 <User size={16} className="text-[#52B788]" />
                                                 <div>
                                                     <p className="text-[9px] text-gray-500 font-bold uppercase">Cliente</p>
-                                                    <p className="text-sm font-bold">{docData.payload.cliente}</p>
+                                                    <p className="text-sm font-bold">{docData.payload.cl || docData.payload.cliente}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <Calendar size={16} className="text-[#52B788]" />
                                                 <div>
                                                     <p className="text-[9px] text-gray-500 font-bold uppercase">Fecha de Emisión</p>
-                                                    <p className="text-sm font-bold">{docData.payload.fecha}</p>
+                                                    <p className="text-sm font-bold">{docData.payload.f || docData.payload.fecha}</p>
                                                 </div>
                                             </div>
                                             <div className="border-t border-[#52B788]/10 pt-4 mt-4">
@@ -103,17 +122,23 @@ const PublicVerify = () => {
                                                     <Package size={12} className="text-[#52B788]" /> Productos
                                                 </p>
                                                 <ul className="space-y-2 text-xs">
-                                                    {docData.payload.items?.map((item, idx) => (
+                                                    {(docData.payload.i || docData.payload.items)?.map((item, idx) => (
                                                         <li key={idx} className="flex justify-between items-center text-gray-300">
-                                                            <span className="truncate pr-4">{item.cantidad}x {item.producto || 'Producto'}</span>
-                                                            <span className="font-mono text-[#52B788]">${item.subtotal}</span>
+                                                            <span className="truncate pr-4">
+                                                                {item.c || item.cantidad}x {item.p || item.producto || 'Producto'}
+                                                            </span>
+                                                            <span className="font-mono text-[#52B788]">
+                                                                ${item.s || item.subtotal}
+                                                            </span>
                                                         </li>
                                                     ))}
                                                 </ul>
                                             </div>
                                             <div className="bg-[#52B788]/10 p-4 rounded-xl flex justify-between items-center mt-2 border border-[#52B788]/20">
                                                 <p className="text-[10px] text-[#52B788] font-bold uppercase tracking-widest">Total</p>
-                                                <p className="text-lg font-bold text-white">${docData.payload.total?.toLocaleString()}</p>
+                                                <p className="text-lg font-bold text-white">
+                                                    ${(docData.payload.t || docData.payload.total)?.toLocaleString()}
+                                                </p>
                                             </div>
                                         </>
                                     )}
@@ -125,20 +150,24 @@ const PublicVerify = () => {
                                                 <FileText size={16} className="text-[#52B788]" />
                                                 <div>
                                                     <p className="text-[9px] text-gray-500 font-bold uppercase">Clasificación</p>
-                                                    <p className="text-sm font-bold">Reporte de {docData.payload.tipo}</p>
+                                                    <p className="text-sm font-bold">
+                                                        Reporte de {docData.payload.t || docData.payload.tipo}
+                                                    </p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <Calendar size={16} className="text-[#52B788]" />
                                                 <div>
                                                     <p className="text-[9px] text-gray-500 font-bold uppercase">Periodo Analizado</p>
-                                                    <p className="text-sm font-bold">{docData.payload.periodo}</p>
+                                                    <p className="text-sm font-bold">
+                                                        {docData.payload.p || docData.payload.periodo}
+                                                    </p>
                                                 </div>
                                             </div>
                                             <div className="border-t border-[#52B788]/10 pt-4 mt-4">
                                                 <p className="text-[9px] text-[#52B788] font-bold uppercase mb-2">Resumen Ejecutivo</p>
                                                 <p className="text-xs text-gray-400 leading-relaxed italic border-l-2 border-[#52B788]/30 pl-3">
-                                                    "{docData.payload.summary}"
+                                                    "{docData.payload.s || docData.payload.summary}"
                                                 </p>
                                             </div>
                                         </>

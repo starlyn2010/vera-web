@@ -86,9 +86,17 @@ const Orders = () => {
     const [invoiceOrder, setInvoiceOrder] = useState(null);
     const [cancellingOrderId, setCancellingOrderId] = useState(null);
     const [newOrder, setNewOrder] = useState({
-        id_cliente: user?.id || null,
+        id_cliente: null,
         items: []
     });
+
+    // Ensure id_cliente is synced with user
+    useEffect(() => {
+        if (user?.id) {
+            setNewOrder(prev => ({ ...prev, id_cliente: user.id }));
+        }
+    }, [user]);
+
     const [paymentInfo, setPaymentInfo] = useState({
         cardHolder: '',
         cardNumber: '',
@@ -386,10 +394,10 @@ const Orders = () => {
                         <div className="flex flex-col items-center gap-1">
                             <QRCodeSVG
                                 value={getVerifyUrl(invoiceOrder?.verifyToken || invoiceOrder?.id_pedido || 'preview')}
-                                size={60}
+                                size={128}
                                 bgColor="#ffffff"
                                 fgColor="#0D1712"
-                                level="M"
+                                level="H"
                                 includeMargin={true}
                             />
                             <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest">Escanear para verificar</span>

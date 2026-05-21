@@ -292,10 +292,10 @@ const Reports = () => {
                         <div className="flex flex-col items-center gap-1">
                             <QRCodeSVG
                                 value={getVerifyUrl(currentReportData?.verifyToken || currentReportData?.id_reporte || 'preview')}
-                                size={72}
+                                size={128}
                                 bgColor="#ffffff"
                                 fgColor="#0D1712"
-                                level="M"
+                                level="H"
                                 includeMargin={true}
                             />
                             <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest">Escanear para verificar</span>

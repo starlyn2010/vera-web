@@ -146,7 +146,18 @@ async def get_order_history(user: dict = Depends(get_current_user)):
         """,
         params,
     )
-    return orders
+    
+    # Enrich with verification tokens
+    out = []
+    for o in orders:
+        try:
+            # We use a compact payload for the history list to keep tokens small
+            token = create_verification_token(f"order-{o['id_pedido']}", "invoice", o)
+        except Exception:
+            token = None
+        out.append({**o, "verifyToken": token})
+        
+    return out
 
 
 # ── GET /{order_id} ──────────────────────────────────────────────────────────

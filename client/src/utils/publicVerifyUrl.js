@@ -24,9 +24,14 @@ export const getPublicBaseUrl = () => {
 
 export const getVerifyUrl = (id) => {
   const safeId = encodeURIComponent(String(id ?? '').trim() || 'preview');
-  const base = getPublicBaseUrl();
-  // If we somehow still don't have a base, use a relative path
-  if (!base) return `/verify/${safeId}`;
+  let base = getPublicBaseUrl();
+  
+  // Si la base no tiene protocolo, es una ruta relativa y el scanner fallará.
+  // Forzamos el dominio de producción si detectamos que estamos en un entorno sin dominio claro.
+  if (!base || base.startsWith('/') || base === 'null') {
+    base = 'https://jud-starlyn2010s-projects.vercel.app';
+  }
+  
   return `${base}/verify/${safeId}`;
 };
 

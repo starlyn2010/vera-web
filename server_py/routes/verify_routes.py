@@ -5,7 +5,21 @@ import urllib.request
 import urllib.error
 import urllib.parse
 
+from services.verification_tokens import decode_verification_token
+
 router = APIRouter(prefix="/api/verify", tags=["verify"])
+
+@router.get("/token/{token}")
+async def verify_token_document(token: str):
+    """
+    Decodes a JWT verification token and returns the payload.
+    This enables instant offline/QR verification without hitting the database.
+    """
+    try:
+        decoded = decode_verification_token(token)
+        return decoded
+    except Exception as e:
+        raise HTTPException(status_code=404, detail="Token no válido o expirado.")
 
 @router.get("/{report_id}")
 async def verify_document(report_id: str):

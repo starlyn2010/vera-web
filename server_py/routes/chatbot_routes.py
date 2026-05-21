@@ -126,11 +126,16 @@ Instrucciones de comportamiento:
     except RuntimeError as e:
         error_detail = str(e)
         print(f"Groq Runtime Error: {error_detail}")
-        raise HTTPException(502, f"Error de Groq: {error_detail}")
+        # Graceful fallback: do not break the UI when Groq is unreachable (common in restricted networks).
+        return {
+            "reply": "Hola, soy Jud. Mi módulo de IA está temporalmente no disponible. Puedo ayudarte con información básica del inventario, pedidos y reportes sin IA por ahora."
+        }
     except Exception as e:
         error_detail = str(e)
         print(f"Groq General Error: {error_detail}")
-        raise HTTPException(502, f"El servicio de IA está temporalmente no disponible: {error_detail}")
+        return {
+            "reply": "Hola, soy Jud. Mi módulo de IA está temporalmente no disponible. Puedo ayudarte con información básica del inventario, pedidos y reportes sin IA por ahora."
+        }
 
 
 async def _save_consultation(user_id: int | None, question: str, answer: str):

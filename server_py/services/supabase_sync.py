@@ -19,7 +19,8 @@ def _do_sync(doc_id: str, doc_tipo: str, payload: dict):
     supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
 
     if not supabase_url or not supabase_key:
-        logger.debug(f"Skipping Supabase sync for {doc_id} (Missing environment variables)")
+        # We use warning here because this is often the cause of QR issues on Vercel
+        logger.warning(f"Skipping Supabase sync for {doc_id} (Missing environment variables: SUPABASE_URL/KEY)")
         return
 
     # Clean URL and prepare endpoint
@@ -46,17 +47,18 @@ def _do_sync(doc_id: str, doc_tipo: str, payload: dict):
         req = urllib.request.Request(endpoint, data=json_data, headers=headers, method="POST")
         
         # We use a short timeout because this is just a background sync.
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=8) as response:
             if response.status in (200, 201, 204):
                 logger.info(f"Successfully synced document {doc_id} to Supabase")
             else:
                 logger.warning(f"Unexpected response from Supabase for {doc_id}: {response.status}")
     except urllib.error.HTTPError as e:
-        # If it's a conflict (409), maybe it already exists. We can ignore or log.
+        # If it's a conflict (409), maybe it already exists.
         if e.code == 409:
             logger.info(f"Document {doc_id} already exists in Supabase.")
         else:
-            logger.warning(f"HTTP error syncing {doc_id} to Supabase: {e.code} {e.reason}")
+            err_body = e.read().decode('utf-8') if e.fp else ""
+            logger.error(f"HTTP error syncing {doc_id} to Supabase: {e.code} {e.reason} - {err_body}")
     except urllib.error.URLError as e:
         logger.warning(f"Network error syncing {doc_id} to Supabase: {e.reason}. Working offline.")
     except Exception as e:

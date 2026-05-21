@@ -147,11 +147,18 @@ async def verify_document_token(token: str):
     This avoids relying on external persistence (Supabase) for "always verifiable" links.
     """
     from fastapi import HTTPException
+    import logging
 
     try:
         data = decode_verification_token(token)
-        return {"id": data.get("id"), "tipo": data.get("tipo"), "payload": data.get("payload")}
-    except Exception:
+        return {
+            "id": data.get("id"), 
+            "tipo": data.get("tipo"), 
+            "payload": data.get("payload"),
+            "source": "cryptographic_token"
+        }
+    except Exception as e:
+        logging.warning(f"Verification token decode failed: {e}")
         raise HTTPException(status_code=400, detail="Token de verificación inválido o expirado.")
 
 
@@ -167,19 +174,28 @@ async def verify_document_direct(report_id: str):
     import urllib.error
     import urllib.parse
     from fastapi import HTTPException
+    import logging
 
     supabase_url = os.getenv("SUPABASE_URL")
     supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
 
     if not supabase_url or not supabase_key:
-        raise HTTPException(status_code=500, detail="Verification service is not configured (missing Supabase keys).")
+        logging.error("Supabase keys missing in environment")
+        raise HTTPException(status_code=500, detail="El servicio de verificación no está configurado.")
 
     supabase_url = supabase_url.rstrip("/")
-    endpoint = f"{supabase_url}/rest/v1/verificaciones?select=*"
-
-    or_query = f"or=(id.eq.{report_id},id.eq.order-{report_id},id.eq.report-{report_id})"
+    # Try multiple formats to find the record
+    search_ids = [report_id]
+    if not report_id.startswith("order-") and not report_id.startswith("report-"):
+        search_ids.append(f"order-{report_id}")
+        search_ids.append(f"report-{report_id}")
+    
+    # Construct OR query for PostgREST
+    or_parts = [f"id.eq.{sid}" for sid in search_ids]
+    or_query = f"or=({','.join(or_parts)})"
+    
     encoded_query = urllib.parse.quote(or_query, safe='=(),.-')
-    full_url = f"{endpoint}&{encoded_query}"
+    full_url = f"{supabase_url}/rest/v1/verificaciones?select=*&{encoded_query}"
 
     headers = {
         "apikey": supabase_key,
@@ -188,27 +204,31 @@ async def verify_document_direct(report_id: str):
     }
 
     try:
+        logging.info(f"Querying Supabase for doc: {report_id}")
         req = urllib.request.Request(full_url, headers=headers, method="GET")
         with urllib.request.urlopen(req, timeout=5) as response:
             if response.status == 200:
                 data = json.loads(response.read().decode('utf-8'))
                 if data and len(data) > 0:
-                    return data[0]
+                    return {**data[0], "source": "database"}
                 else:
+                    logging.info(f"Document {report_id} not found in Supabase")
                     raise HTTPException(status_code=404, detail="Documento no encontrado o no válido.")
             else:
-                raise HTTPException(status_code=response.status, detail="Error retrieving document from database.")
+                raise HTTPException(status_code=response.status, detail="Error al consultar la base de datos.")
     except urllib.error.HTTPError as e:
         if e.code == 404:
             raise HTTPException(status_code=404, detail="Documento no encontrado o no válido.")
-        raise HTTPException(status_code=e.code, detail=f"Database error: {e.reason}")
+        logging.error(f"Supabase HTTP Error: {e.code} {e.reason}")
+        raise HTTPException(status_code=e.code, detail=f"Error de base de datos: {e.reason}")
     except urllib.error.URLError as e:
-        raise HTTPException(status_code=503, detail="Service unavailable (database connection failed).")
+        logging.error(f"Supabase Connection Error: {e.reason}")
+        raise HTTPException(status_code=503, detail="Servicio de base de datos no disponible.")
     except HTTPException:
         raise
     except Exception as e:
+        logging.error(f"Unexpected verification error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/")
 async def root():
