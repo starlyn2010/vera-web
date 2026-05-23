@@ -1,12 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { ShieldCheck, FileText, Leaf, AlertTriangle, User, Calendar, DollarSign, Package } from 'lucide-react';
+import { ShieldCheck, FileText, Leaf, AlertTriangle, User, Calendar, DollarSign, Package, Download } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
 
 const PublicVerify = () => {
     const { reportId } = useParams();
     const [status, setStatus] = useState('loading'); // loading | verified | not_found
     const [docData, setDocData] = useState(null);
     const [errorDetail, setErrorDetail] = useState(null);
+    const pdfRef = useRef();
+
+    const handleDownloadPDF = () => {
+        const element = pdfRef.current;
+        if (!element) return;
+
+        const opt = {
+            margin: 1, // 1cm margin all around
+            filename: `Verificacion_${docData?.id || 'Doc'}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    };
 
     useEffect(() => {
         const verifyDoc = async () => {
@@ -192,6 +209,15 @@ const PublicVerify = () => {
                             </div>
                         )}
 
+                        {status === 'verified' && docData && (
+                            <button
+                                onClick={handleDownloadPDF}
+                                className="mt-6 w-full bg-[#52B788] text-[#0D1712] py-4 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-[#52B788]/90 transition-colors"
+                            >
+                                <Download size={16} /> Descargar Comprobante PDF
+                            </button>
+                        )}
+
                         {status === 'not_found' && (
                             <div className="animate-in fade-in zoom-in duration-500">
                                 <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-red-500/30">
@@ -199,7 +225,7 @@ const PublicVerify = () => {
                                 </div>
                                 <h2 className="text-xl font-bold text-white mb-2">Documento No Encontrado</h2>
                                 <p className="text-sm text-gray-400">
-                                    No se encontró un registro válido asociado a este código QR. El documento podría no ser auténtico.
+                                    {errorDetail || 'No se encontró un registro válido asociado a este código QR. El documento podría no ser auténtico.'}
                                 </p>
                             </div>
                         )}
@@ -211,6 +237,81 @@ const PublicVerify = () => {
                     © 2026 Clear Path. Sistema de verificación en la nube.
                 </p>
             </div>
+
+            {/* Hidden Invoice Template for PDF Download */}
+            {status === 'verified' && docData && docData.tipo === 'invoice' && docData.payload && (
+                <div style={{ position: 'absolute', top: '-9999px', left: '-9999px' }}>
+                    <div
+                        ref={pdfRef}
+                        className="bg-white text-gray-800 p-10 mx-auto font-sans"
+                        style={{ width: '19cm', minHeight: '27.7cm', padding: '40px', boxSizing: 'border-box' }}
+                    >
+                        <div className="flex justify-between items-start border-b-2 border-[#52B788] pb-8 mb-10">
+                            <div>
+                                <h1 className="text-2xl font-bold tracking-tighter uppercase text-[#0D1712]">Clear Path</h1>
+                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Huella Verde</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-xs font-bold text-[#52B788] mb-1">FACTURA: CP-{docData.payload.id_pedido || docData.id || 'TMP'}</p>
+                                <p className="text-[10px] text-gray-400 uppercase font-bold">
+                                    {docData.payload.f || docData.payload.fecha || ''}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-6 mb-8">
+                            <div>
+                                <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">Cliente</p>
+                                <p className="text-sm font-bold">{docData.payload.cl || docData.payload.cliente || 'Consumidor Final'}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">Recibo</p>
+                                <p className="text-sm font-bold">{docData.payload.recibo || `REC-${docData.payload.id_pedido || docData.id || ''}`}</p>
+                            </div>
+                        </div>
+
+                        <div className="border border-gray-200 rounded-xl overflow-hidden">
+                            <div className="grid grid-cols-12 bg-gray-50 px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-600">
+                                <div className="col-span-6">Producto</div>
+                                <div className="col-span-2 text-right">Precio</div>
+                                <div className="col-span-2 text-right">Cant.</div>
+                                <div className="col-span-2 text-right">Subtotal</div>
+                            </div>
+                            <div className="divide-y divide-gray-200">
+                                {(docData.payload.i || docData.payload.items)?.map((item, index) => (
+                                    <div
+                                        key={`row-${index}`}
+                                        className="grid grid-cols-12 px-5 py-3 text-[11px]"
+                                    >
+                                        <div className="col-span-6 font-bold break-words leading-snug min-w-0">
+                                            {item.p || item.producto}
+                                        </div>
+                                        <div className="col-span-2 text-right">${Number(item.pr || item.precio || 0).toFixed(2)}</div>
+                                        <div className="col-span-2 text-right">{item.c || item.cantidad}</div>
+                                        <div className="col-span-2 text-right font-bold">${Number(item.s || item.subtotal || 0).toFixed(2)}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mt-10 flex justify-end">
+                            <div className="w-64 border border-gray-200 rounded-xl p-5">
+                                <div className="flex justify-between text-[11px]">
+                                    <span className="text-gray-600 font-bold">Total</span>
+                                    <span className="font-black text-[#0D1712]">${Number(docData.payload.t || docData.payload.total || 0).toFixed(2)}</span>
+                                </div>
+                                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-2">USD</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-auto pt-10 border-t border-gray-100 flex justify-between items-center">
+                            <div className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">
+                                Factura generada por Clear Path · Huella Verde
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
