@@ -28,7 +28,14 @@ a = Analysis(
         'bcrypt',
         'passlib',
         'python-multipart',
-        'python-jose'
+        'python-jose',
+        'routes.auth_routes',
+        'routes.inventory_routes',
+        'routes.order_routes',
+        'routes.project_routes',
+        'routes.analytics_routes',
+        'routes.chatbot_routes',
+        'routes.report_routes'
     ],
     hookspath=[],
     hooksconfig={},
