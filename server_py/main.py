@@ -127,6 +127,9 @@ async def health():
         "groq": bool(os.getenv("GROQ_API_KEY")),
         "router_errors": _router_errors if _router_errors else None,
         "routes_count": len(app.routes),
+        "db_path": get_db_path(),
+        "db_exists": os.path.exists(get_db_path()),
+        "base_dir_contents": os.listdir(os.path.dirname(os.path.dirname(__file__))) if not getattr(sys, 'frozen', False) else [],
     }
 
 
