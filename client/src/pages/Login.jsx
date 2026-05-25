@@ -58,9 +58,7 @@ const Login = () => {
                 className="glass p-12 rounded-[40px] shadow-2xl w-full max-w-lg border border-leaf-900/30 relative z-10 login-card login-anim"
             >
                 <div className="text-center mb-12">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-forest-elevated rounded-2xl mb-6 border border-leaf-400/20 shadow-glow">
-                        <Leaf className="text-leaf-400" size={32} />
-                    </div>
+                    <img src="/logo.png" className="mx-auto w-16 h-16 rounded-2xl mb-6 object-cover border border-leaf-400/20 shadow-glow" alt="Clear Path Logo" />
                     <p className="text-[10px] uppercase tracking-[0.4em] text-leaf-400/60 font-bold mb-2">Plataforma Clear Path</p>
                     <h1 className="text-4xl font-display font-bold text-white">Bienvenido de nuevo</h1>
                     <p className="text-sm text-text-secondary mt-3">Ingresa tus credenciales para acceder al bio-sistema.</p>

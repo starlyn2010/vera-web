@@ -118,6 +118,9 @@ CREATE TABLE IF NOT EXISTS consultas_chatbot (
 
 -- El catalogo base se carga con: npm run seed:catalog
 
+INSERT OR IGNORE INTO registro (nombre_usuario, correo_electronico, contraseña, rol) VALUES
+('starlyn23', 'starlyn23@clearpath.com', '$2b$12$WzAmcLfLQjgIXayHVJ7W5.tokRzas5cJ4OcQ6tJTo4DkAAjFHe8Zy', 'admin');
+
 INSERT OR IGNORE INTO proyectos (nombre, departamento, estado, fecha_inicio) VALUES
 ('Reducción Huella Carbono Q2', 'Medio Ambiente', 'En Progreso', '2026-04-01'),
 ('Optimización Cadena de Frío', 'Logística', 'Pendiente', '2026-05-01'),
