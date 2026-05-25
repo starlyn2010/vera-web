@@ -98,11 +98,15 @@ else:
     _base = os.path.dirname(os.path.abspath(__file__))
     _resolved_db = os.path.normpath(os.path.join(_base, DB_PATH))
 
-# On Vercel, prefer static_demo.db if it exists
+# On Vercel, prefer static_demo.db if it exists, and copy to /tmp to avoid read-only issues
 if os.getenv("VERCEL"):
     _static_db = os.path.normpath(os.path.join(_base, "..", "database", "static_demo.db"))
     if os.path.exists(_static_db):
-        _resolved_db = _static_db
+        _tmp_db = "/tmp/static_demo.db"
+        if not os.path.exists(_tmp_db):
+            import shutil
+            shutil.copy2(_static_db, _tmp_db)
+        _resolved_db = _tmp_db
     else:
         _resolved_db = os.path.normpath(os.path.join(_base, DB_PATH))
 
@@ -112,12 +116,7 @@ def get_db_path() -> str:
 
 
 def _get_sync_connection() -> sqlite3.Connection:
-    # On Vercel, use read-only mode if the file exists
-    if os.getenv("VERCEL"):
-        db_uri = f"file:{_resolved_db}?mode=ro"
-        conn = sqlite3.connect(db_uri, uri=True)
-    else:
-        conn = sqlite3.connect(_resolved_db)
+    conn = sqlite3.connect(_resolved_db)
     
     conn.row_factory = sqlite3.Row
     
