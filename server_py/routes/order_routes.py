@@ -27,6 +27,9 @@ class CreateOrderBody(BaseModel):
     id_cliente: int | None = None
     id_empleado: int | None = None
     total: float | None = None
+    metodo_envio: str | None = None
+    precio_envio: float | None = None
+    direccion_envio: str | None = None
     productos: list[OrderItem] | None = None
     items: list[OrderItem] | None = None
     tarjeta: str | None = None
@@ -39,8 +42,8 @@ def _create_order_sync(body_dict: dict, normalized: list, final_total: float, us
     try:
         tx.begin()
         result = tx.execute(
-            "INSERT INTO pedidos (id_cliente, id_empleado, id_usuario, fecha, total) VALUES (?, ?, ?, date('now'), ?)",
-            (body_dict.get("id_cliente") or user_id, body_dict.get("id_empleado") or 1, user_id, final_total),
+            "INSERT INTO pedidos (id_cliente, id_empleado, id_usuario, fecha, total, metodo_envio, precio_envio, direccion_envio) VALUES (?, ?, ?, date('now'), ?, ?, ?, ?)",
+            (body_dict.get("id_cliente") or user_id, body_dict.get("id_empleado") or 1, user_id, final_total, body_dict.get("metodo_envio"), body_dict.get("precio_envio") or 0.0, body_dict.get("direccion_envio")),
         )
         order_id = result["insertId"]
 
@@ -95,7 +98,8 @@ async def create_order(body: CreateOrderBody, user: dict = Depends(get_current_u
         calculated_total += subtotal
         normalized.append({"id_producto": item.id_producto, "cantidad": item.cantidad, "subtotal": subtotal})
 
-    final_total = round(calculated_total or (body.total or 0), 2)
+    base_total = calculated_total or (body.total or 0)
+    final_total = round(base_total + (body.precio_envio or 0.0), 2)
 
     loop = asyncio.get_event_loop()
     order_id = await loop.run_in_executor(

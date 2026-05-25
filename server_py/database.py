@@ -155,6 +155,15 @@ def init_schema_sync() -> None:
     if "id_usuario" not in cols:
         conn.execute("ALTER TABLE pedidos ADD COLUMN id_usuario INTEGER")
         print("Database migration applied: pedidos.id_usuario.")
+    if "metodo_envio" not in cols:
+        conn.execute("ALTER TABLE pedidos ADD COLUMN metodo_envio TEXT")
+        print("Database migration applied: pedidos.metodo_envio.")
+    if "precio_envio" not in cols:
+        conn.execute("ALTER TABLE pedidos ADD COLUMN precio_envio REAL DEFAULT 0")
+        print("Database migration applied: pedidos.precio_envio.")
+    if "direccion_envio" not in cols:
+        conn.execute("ALTER TABLE pedidos ADD COLUMN direccion_envio TEXT")
+        print("Database migration applied: pedidos.direccion_envio.")
 
     cols_inv = {row[1] for row in conn.execute("PRAGMA table_info(inventario)").fetchall()}
     if "imagen_url" not in cols_inv:

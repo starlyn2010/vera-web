@@ -25,6 +25,7 @@ venv/
 
 # Database (don't commit real data)
 database/*.db
+!database/static_demo.db
 database/backups/
 
 # Logs

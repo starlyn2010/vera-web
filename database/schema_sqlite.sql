@@ -43,6 +43,9 @@ CREATE TABLE IF NOT EXISTS pedidos (
     id_usuario INTEGER,
     fecha TEXT,
     total REAL,
+    metodo_envio TEXT,
+    precio_envio REAL DEFAULT 0,
+    direccion_envio TEXT,
     FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente),
     FOREIGN KEY (id_empleado) REFERENCES empleados(id_empleado),
     FOREIGN KEY (id_usuario) REFERENCES registro(id_usuario)

@@ -14,9 +14,10 @@ export const getPublicBaseUrl = () => {
 
   const origin = typeof window !== 'undefined' ? window.location?.origin : '';
   
-  // When running from Electron (file://) or if origin is missing/null, fallback to the production web domain
-  if (!origin || origin === 'null' || origin.startsWith('file://')) {
-    return 'https://jud-starlyn2010s-projects.vercel.app';
+  // When running from Electron (file://), localhost dev server, or if origin is missing/null,
+  // fallback to the production web domain so QR codes always work publicly.
+  if (!origin || origin === 'null' || origin.startsWith('file://') || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+    return 'https://clear-path-jud.vercel.app';
   }
   
   return origin;
@@ -29,7 +30,7 @@ export const getVerifyUrl = (id) => {
   // Si la base no tiene protocolo, es una ruta relativa y el scanner fallará.
   // Forzamos el dominio de producción si detectamos que estamos en un entorno sin dominio claro.
   if (!base || base.startsWith('/') || base === 'null') {
-    base = 'https://jud-starlyn2010s-projects.vercel.app';
+    base = 'https://clear-path-jud.vercel.app';
   }
   
   return `${base}/verify/${safeId}`;

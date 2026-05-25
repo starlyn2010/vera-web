@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ArrowUpRight, Ban, Calendar, CreditCard, Download, Loader2, Package, Plus, Search, ShoppingBag, Trash2, User } from 'lucide-react';
+import { ArrowUpRight, Ban, Calendar, CreditCard, Download, Loader2, MapPin, Package, Plus, Search, ShoppingBag, Trash2, Truck, User } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import gsap from 'gsap';
 import html2pdf from 'html2pdf.js';
@@ -85,6 +85,55 @@ const Orders = () => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [invoiceOrder, setInvoiceOrder] = useState(null);
     const [cancellingOrderId, setCancellingOrderId] = useState(null);
+    
+    // Zones with approximate distance (km) from Megacentro, Santo Domingo
+    const deliveryZones = [
+        { id: 'pickup', name: 'Recogida en tienda (Megacentro)', km: 0 },
+        { id: 'villa-mella', name: 'Villa Mella', km: 3 },
+        { id: 'sabana-perdida', name: 'Sabana Perdida', km: 5 },
+        { id: 'arroyo-hondo', name: 'Arroyo Hondo', km: 6 },
+        { id: 'los-prados', name: 'Los Prados', km: 7 },
+        { id: 'cristo-rey', name: 'Cristo Rey', km: 8 },
+        { id: 'gazcue', name: 'Gazcue', km: 9 },
+        { id: 'zona-colonial', name: 'Zona Colonial', km: 10 },
+        { id: 'bella-vista', name: 'Bella Vista', km: 10 },
+        { id: 'naco', name: 'Naco', km: 11 },
+        { id: 'piantini', name: 'Piantini', km: 12 },
+        { id: 'herrera', name: 'Herrera', km: 12 },
+        { id: 'los-mina', name: 'Los Mina', km: 13 },
+        { id: 'ensanche-ozama', name: 'Ensanche Ozama', km: 14 },
+        { id: 'sd-este', name: 'Santo Domingo Este', km: 15 },
+        { id: 'los-alcarrizos', name: 'Los Alcarrizos', km: 8 },
+        { id: 'boca-chica', name: 'Boca Chica', km: 30 },
+        { id: 'san-cristobal', name: 'San Cristóbal', km: 35 },
+        { id: 'santiago', name: 'Santiago', km: 155 },
+    ];
+    const PRICE_PER_KM_RD = 10;
+    const EXCHANGE_RATE = 59;
+
+    const [shippingInfo, setShippingInfo] = useState({
+        zoneId: 'pickup',
+        zoneName: 'Recogida en tienda (Megacentro)',
+        direccion: '',
+        km: 0,
+        priceRD: 0,
+        priceUSD: 0
+    });
+
+    const handleZoneChange = (zoneId) => {
+        const zone = deliveryZones.find(z => z.id === zoneId);
+        if (!zone) return;
+        const priceRD = zone.km * PRICE_PER_KM_RD;
+        setShippingInfo(prev => ({
+            ...prev,
+            zoneId: zone.id,
+            zoneName: zone.name,
+            km: zone.km,
+            priceRD,
+            priceUSD: Number((priceRD / EXCHANGE_RATE).toFixed(2))
+        }));
+    };
+
     const [newOrder, setNewOrder] = useState({
         id_cliente: null,
         items: []
@@ -202,7 +251,8 @@ const Orders = () => {
     };
 
     const calculateTotal = () => {
-        return newOrder.items.reduce((sum, item) => sum + (Number(item.precio) * item.cantidad), 0);
+        const subtotal = newOrder.items.reduce((sum, item) => sum + (Number(item.precio) * item.cantidad), 0);
+        return subtotal + shippingInfo.priceUSD;
     };
 
     const handleSubmit = async (event) => {
@@ -215,6 +265,9 @@ const Orders = () => {
                 id_cliente: user?.id || newOrder.id_cliente,
                 id_empleado: user?.rol === 'admin' || user?.rol === 'empleado' ? user.id : 1,
                 total: calculateTotal(),
+                metodo_envio: shippingInfo.zoneId === 'pickup' ? 'Recogida en tienda' : `Envío a ${shippingInfo.zoneName} (${shippingInfo.km} km)`,
+                precio_envio: shippingInfo.priceUSD,
+                direccion_envio: shippingInfo.direccion,
                 productos: newOrder.items.map((item) => ({
                     id_producto: item.id_producto,
                     cantidad: item.cantidad,
@@ -227,6 +280,7 @@ const Orders = () => {
             setIsModalOpen(false);
             setNewOrder({ id_cliente: user?.id || null, items: [] });
             setPaymentInfo({ cardHolder: '', cardNumber: '', expiry: '', cvv: '', phone: '' });
+            setShippingInfo({ zoneId: 'pickup', zoneName: 'Recogida en tienda (Megacentro)', direccion: '', km: 0, priceRD: 0, priceUSD: 0 });
             await Promise.all([fetchOrders(), fetchInventory()]);
             addNotification('Pedido confirmado y agregado al historial', 'success');
         } catch (error) {
@@ -371,6 +425,17 @@ const Orders = () => {
                                     <div className="col-span-2 text-right font-bold">${Number(item.subtotal || 0).toFixed(2)}</div>
                                 </div>
                             ))}
+                            {invoiceOrder?.precio_envio > 0 && (
+                                <div className="grid grid-cols-12 px-5 py-3 text-[11px] bg-gray-50/50" style={{ breakInside: 'avoid' }}>
+                                    <div className="col-span-10 text-right font-bold text-gray-500">
+                                        Envío: {invoiceOrder?.metodo_envio}
+                                        {invoiceOrder?.direccion_envio ? ` — ${invoiceOrder.direccion_envio}` : ''}
+                                    </div>
+                                    <div className="col-span-2 text-right font-bold text-[#52B788]">
+                                        ${Number(invoiceOrder?.precio_envio).toFixed(2)}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -393,11 +458,11 @@ const Orders = () => {
                         </div>
                         <div className="flex flex-col items-center gap-1">
                             <QRCodeSVG
-                                value={getVerifyUrl(invoiceOrder?.verifyToken || invoiceOrder?.id_pedido || 'preview')}
-                                size={128}
+                                value={getVerifyUrl(`order-${invoiceOrder?.id_pedido || 'preview'}`)}
+                                size={100}
                                 bgColor="#ffffff"
                                 fgColor="#0D1712"
-                                level="H"
+                                level="M"
                                 includeMargin={true}
                             />
                             <span className="text-[7px] text-gray-400 font-bold uppercase tracking-widest">Escanear para verificar</span>
@@ -571,6 +636,60 @@ const Orders = () => {
                             {newOrder.items.length === 0 && (
                                 <div className="text-center py-8 border-2 border-dashed border-leaf-900/20 rounded-3xl text-leaf-400/30 text-xs italic">
                                     Añade productos para comenzar
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="space-y-4 pt-4 border-t border-leaf-900/10">
+                        <p className="text-[10px] font-black text-leaf-400/60 uppercase tracking-widest ml-1 flex items-center gap-2">
+                            <Truck size={14} /> Envío · Desde Megacentro
+                        </p>
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-[9px] uppercase tracking-widest text-leaf-400/40 font-bold ml-1">Zona de Entrega</label>
+                                <select
+                                    value={shippingInfo.zoneId}
+                                    onChange={(e) => handleZoneChange(e.target.value)}
+                                    className="w-full bg-forest-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all appearance-none cursor-pointer"
+                                >
+                                    {deliveryZones.map((zone) => (
+                                        <option key={zone.id} value={zone.id} className="bg-forest-void">
+                                            {zone.name}{zone.km > 0 ? ` — ${zone.km} km · RD$ ${zone.km * PRICE_PER_KM_RD}` : ' — Gratis'}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            {shippingInfo.zoneId !== 'pickup' && (
+                                <div className="space-y-2">
+                                    <label className="text-[9px] uppercase tracking-widest text-leaf-400/40 font-bold ml-1 flex items-center gap-1">
+                                        <MapPin size={10} /> Dirección de Entrega
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={shippingInfo.direccion}
+                                        onChange={(e) => setShippingInfo(prev => ({ ...prev, direccion: e.target.value }))}
+                                        placeholder="Ej: Calle Principal #23, Res. Los Jardines"
+                                        className="w-full bg-forest-void border border-leaf-900/30 rounded-2xl p-4 text-sm outline-none focus:border-leaf-400 transition-all"
+                                    />
+                                </div>
+                            )}
+                            {shippingInfo.km > 0 && (
+                                <div className="flex items-center justify-between p-4 bg-leaf-400/5 border border-leaf-400/20 rounded-2xl">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-leaf-400/10 flex items-center justify-center text-leaf-400">
+                                            <Truck size={18} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold">{shippingInfo.zoneName}</p>
+                                            <p className="text-[10px] text-leaf-400/50">{shippingInfo.km} km × RD$10/km</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-black text-leaf-400">RD$ {shippingInfo.priceRD}</p>
+                                        <p className="text-[9px] text-leaf-400/50 uppercase">≈ ${shippingInfo.priceUSD} USD</p>
+                                    </div>
                                 </div>
                             )}
                         </div>

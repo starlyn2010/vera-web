@@ -159,13 +159,13 @@ const Reports = () => {
     };
 
     const handleShare = async (report) => {
-        const text = `Reporte ${report.tipo} - ${report.periodo}`;
+        const url = getVerifyUrl(report.verifyToken || report.id_reporte);
         try {
             if (navigator.share) {
-                await navigator.share({ title: text, text });
+                await navigator.share({ title: `Reporte ${report.tipo}`, url: url });
             } else {
-                await navigator.clipboard.writeText(text);
-                addNotification('Referencia del reporte copiada', 'success');
+                await navigator.clipboard.writeText(url);
+                addNotification('Enlace del reporte copiado', 'success');
             }
         } catch (err) {
             addNotification('No se pudo compartir el reporte', 'error');
