@@ -55,7 +55,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from services.verification_tokens import decode_verification_token
 
 # ── DB init (sync at startup) ────────────────────────────────────────────────
-from database import init_schema_sync
+from database import init_schema_sync, get_db_path
 
 init_schema_sync()
 
