@@ -1,11 +1,13 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { User, Mail, Lock, Globe, Bell, Shield, Database, Moon, Sun, Save, Edit3, Trash2, CheckCircle2 } from 'lucide-react';
 import gsap from 'gsap';
 import api from '../services/api';
 
 const Settings = () => {
     const { user, setUser } = useAuth();
+    const { t, lang, setLanguage } = useLanguage();
     const [isSaving, setIsSaving] = useState(false);
     const [successMsg, setSuccessMsg] = useState('');
     
@@ -24,7 +26,7 @@ const Settings = () => {
         }
     }, [user]);
 
-    const roleLabel = user?.rol === 'admin' ? 'Administrador' : 'No administrador';
+    const roleLabel = user?.rol === 'admin' ? t('role.admin') : t('role.notAdmin');
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -35,7 +37,7 @@ const Settings = () => {
             setUser(updatedUser);
             localStorage.setItem('user', JSON.stringify(updatedUser));
             
-            setSuccessMsg('Configuración guardada con éxito');
+            setSuccessMsg(t('settings.saved'));
             setTimeout(() => setSuccessMsg(''), 3000);
             
             gsap.fromTo(".success-banner", 
@@ -56,8 +58,8 @@ const Settings = () => {
             
             <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-12 z-10 relative">
                 <div>
-                    <p className="text-[10px] uppercase tracking-[0.4em] text-leaf-400/60 font-bold mb-2">Preferencias</p>
-                    <h1 className="text-5xl font-display font-bold text-text-primary tracking-tight">Panel de Control</h1>
+                    <p className="text-[10px] uppercase tracking-[0.4em] text-leaf-400/60 font-bold mb-2">{t('settings.preferences')}</p>
+                    <h1 className="text-5xl font-display font-bold text-text-primary tracking-tight">{t('settings.title')}</h1>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-end w-full lg:w-auto">
@@ -71,7 +73,7 @@ const Settings = () => {
                         disabled={isSaving}
                         className="bg-leaf-400 text-forest-void px-8 py-3.5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-glow hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
                     >
-                        {isSaving ? 'Guardando...' : <><Save size={18} /> Guardar Cambios</>}
+                        {isSaving ? t('settings.saving') : <><Save size={18} /> {t('settings.saveChanges')}</>}
                     </button>
                 </div>
             </header>
@@ -81,13 +83,13 @@ const Settings = () => {
                 {/* Profile Card */}
                 <div className="lg:col-span-7 bg-forest-elevated/40 glass p-10 rounded-[40px] border border-leaf-900/20 shadow-2xl">
                     <h3 className="text-2xl font-display font-bold mb-10 flex items-center gap-3">
-                        <User size={24} className="text-leaf-400" /> Perfil de Usuario
+                        <User size={24} className="text-leaf-400" /> {t('settings.profile')}
                     </h3>
                     
                     <div className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-leaf-400/50 uppercase tracking-widest ml-1">Nombre Completo</label>
+                                <label className="text-[10px] font-black text-leaf-400/50 uppercase tracking-widest ml-1">{t('settings.fullName')}</label>
                                 <div className="relative group">
                                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-leaf-400/30 group-focus-within:text-leaf-400 transition-colors" size={20} />
                                     <input 
@@ -99,7 +101,7 @@ const Settings = () => {
                                 </div>
                             </div>
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black text-leaf-400/50 uppercase tracking-widest ml-1">Correo Electrónico</label>
+                                <label className="text-[10px] font-black text-leaf-400/50 uppercase tracking-widest ml-1">{t('settings.email')}</label>
                                 <div className="relative group">
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-leaf-400/30 group-focus-within:text-leaf-400 transition-colors" size={20} />
                                     <input 
@@ -118,8 +120,8 @@ const Settings = () => {
                                     <Shield size={22} />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-text-primary">Rol del Sistema</p>
-                                    <p className="text-xs text-text-tertiary">Acceso actual: <span className="text-leaf-400 font-black uppercase">{roleLabel}</span></p>
+                                    <p className="text-sm font-bold text-text-primary">{t('settings.systemRole')}</p>
+                                    <p className="text-xs text-text-tertiary">{t('settings.currentAccess')}: <span className="text-leaf-400 font-black uppercase">{roleLabel}</span></p>
                                 </div>
                             </div>
                             <span className="text-[11px] font-black text-leaf-400 uppercase tracking-widest">{user?.rol || 'cliente'}</span>
@@ -131,13 +133,13 @@ const Settings = () => {
                 <div className="lg:col-span-5 flex flex-col gap-8">
                     <div className="bg-forest-elevated/40 glass p-8 rounded-[40px] border border-leaf-900/20 shadow-xl">
                         <h3 className="text-xl font-display font-bold mb-6 flex items-center gap-3">
-                            <Bell size={20} className="text-leaf-400" /> Notificaciones
+                            <Bell size={20} className="text-leaf-400" /> {t('settings.notifications')}
                         </h3>
                         <div className="space-y-4">
                             {[
-                                { label: 'Alertas de Impacto', val: true },
-                                { label: 'Actualizaciones de Jud AI', val: false },
-                                { label: 'Reportes Automáticos', val: true },
+                                { label: t('settings.impactAlerts'), val: true },
+                                { label: t('settings.judUpdates'), val: false },
+                                { label: t('settings.autoReports'), val: true },
                             ].map((item, i) => (
                                 <div key={i} className="flex justify-between items-center p-4 rounded-2xl bg-forest-void/30 border border-leaf-900/10">
                                     <span className="text-xs font-bold text-text-secondary">{item.label}</span>
@@ -151,20 +153,24 @@ const Settings = () => {
 
                     <div className="bg-forest-elevated/40 glass p-8 rounded-[40px] border border-leaf-900/20 shadow-xl flex-1">
                         <h3 className="text-xl font-display font-bold mb-6 flex items-center gap-3">
-                            <Globe size={20} className="text-leaf-400" /> Sistema
+                            <Globe size={20} className="text-leaf-400" /> {t('settings.system')}
                         </h3>
                         <div className="space-y-4">
                             <div className="p-4 rounded-2xl bg-forest-void/30 border border-leaf-900/10 flex justify-between items-center">
-                                <span className="text-xs font-bold text-text-secondary">Idioma</span>
-                                <select className="bg-transparent text-xs font-black text-leaf-400 outline-none cursor-pointer uppercase tracking-tighter">
-                                    <option className="bg-forest-void">Español</option>
-                                    <option className="bg-forest-void">English</option>
+                                <span className="text-xs font-bold text-text-secondary">{t('settings.language')}</span>
+                                <select 
+                                    value={lang}
+                                    onChange={(e) => setLanguage(e.target.value)}
+                                    className="bg-transparent text-xs font-black text-leaf-400 outline-none cursor-pointer uppercase tracking-tighter"
+                                >
+                                    <option value="es" className="bg-forest-void">Español</option>
+                                    <option value="en" className="bg-forest-void">English</option>
                                 </select>
                             </div>
                             <div className="p-4 rounded-2xl bg-red-500/5 border border-red-500/20 flex justify-between items-center group hover:bg-red-500/10 transition-all cursor-pointer">
                                 <div>
-                                    <p className="text-xs font-bold text-red-400">Eliminar Cuenta</p>
-                                    <p className="text-[9px] text-red-400/50 font-bold uppercase tracking-tighter">Acción irreversible</p>
+                                    <p className="text-xs font-bold text-red-400">{t('settings.deleteAccount')}</p>
+                                    <p className="text-[9px] text-red-400/50 font-bold uppercase tracking-tighter">{t('settings.deleteWarning')}</p>
                                 </div>
                                 <Trash2 size={18} className="text-red-500/40 group-hover:text-red-500 transition-colors" />
                             </div>

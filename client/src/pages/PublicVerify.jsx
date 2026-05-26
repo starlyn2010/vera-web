@@ -184,7 +184,7 @@ const PublicVerify = () => {
                                             <div className="border-t border-[#52B788]/10 pt-4 mt-4">
                                                 <p className="text-[9px] text-[#52B788] font-bold uppercase mb-2">Resumen Ejecutivo</p>
                                                 <p className="text-xs text-gray-400 leading-relaxed italic border-l-2 border-[#52B788]/30 pl-3">
-                                                    "{docData.payload.s || docData.payload.summary}"
+                                                    "{docData.payload.s || docData.payload.summary || 'Resumen disponible en el documento original.'}"
                                                 </p>
                                             </div>
                                         </>
@@ -225,7 +225,9 @@ const PublicVerify = () => {
                                 </div>
                                 <h2 className="text-xl font-bold text-white mb-2">Documento No Encontrado</h2>
                                 <p className="text-sm text-gray-400">
-                                    {errorDetail || 'No se encontró un registro válido asociado a este código QR. El documento podría no ser auténtico.'}
+                                    {errorDetail || (isToken ? 
+                                        'El token de verificación es inválido o ha expirado. Si el documento es reciente, intenta escanearlo de nuevo.' : 
+                                        'No se encontró un registro en la base de datos asociado a este código. El documento podría no estar sincronizado o no ser auténtico.')}
                                 </p>
                             </div>
                         )}

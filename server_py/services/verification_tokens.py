@@ -42,11 +42,11 @@ def _compact_invoice_payload(payload: dict[str, Any]) -> dict[str, Any]:
 def _compact_report_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "id": payload.get("id_reporte"),
-        "t": _trim_text(payload.get("tipo") or "R", 30),
-        "p": _trim_text(payload.get("periodo") or "", 30),
+        "t": _trim_text(payload.get("tipo") or "R", 15),
+        "p": _trim_text(payload.get("periodo") or "", 15),
         "f": payload.get("fecha_generacion"),
-        # Summary is very small here to save space
-        "s": _trim_text(payload.get("summary") or "", 120),
+        # We remove 's' (summary) to keep the QR code small. 
+        # The verification page will show a generic message or just the type/period.
     }
 
 

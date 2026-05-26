@@ -23,9 +23,20 @@ function startServer() {
     } else {
         // Production: use compiled exe from PyInstaller
         const exePath = path.join(process.resourcesPath, 'server_py', 'dist', 'clearpath_server.exe');
-        command = exePath;
+        if (!require('fs').existsSync(exePath)) {
+            console.error(`CRITICAL ERROR: Backend executable not found at: ${exePath}`);
+            // Fallback to resources dir if dist is missing
+            const altPath = path.join(process.resourcesPath, 'clearpath_server.exe');
+            if (require('fs').existsSync(altPath)) {
+                command = altPath;
+            } else {
+                command = exePath; // will fail but we logged the error
+            }
+        } else {
+            command = exePath;
+        }
         args = [];
-        cwd = path.join(process.resourcesPath, 'server_py');
+        cwd = path.dirname(command);
     }
     
     console.log(`Starting backend: ${command} ${args.join(' ')}`);

@@ -17,6 +17,7 @@ import Reports from './pages/Reports';
 import PublicVerify from './pages/PublicVerify';
 import PageTransition from './components/PageTransition';
 import { NotificationProvider } from './context/NotificationContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 const AppRoutes = () => {
     const { user, loading } = useAuth();
@@ -62,15 +63,17 @@ function App() {
 
   return (
     <AuthProvider>
-        <ThemeProvider>
-            <NotificationProvider>
-                <ErrorBoundary>
-                    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                        <AppRoutes />
-                    </Router>
-                </ErrorBoundary>
-            </NotificationProvider>
-        </ThemeProvider>
+        <LanguageProvider>
+            <ThemeProvider>
+                <NotificationProvider>
+                    <ErrorBoundary>
+                        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                            <AppRoutes />
+                        </Router>
+                    </ErrorBoundary>
+                </NotificationProvider>
+            </ThemeProvider>
+        </LanguageProvider>
     </AuthProvider>
   );
 }

@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS proyectos (
 
 CREATE TABLE IF NOT EXISTS reportes (
     id_reporte INTEGER PRIMARY KEY AUTOINCREMENT,
-    tipo TEXT CHECK(tipo IN ('Analitica', 'Ventas', 'Ambiental')),
+    tipo TEXT CHECK(tipo IN ('Analitica', 'Ventas', 'Ambiental', 'Personalizado')),
     periodo TEXT,
     fecha_generacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     archivo_path TEXT

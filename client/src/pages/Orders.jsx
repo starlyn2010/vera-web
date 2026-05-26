@@ -458,7 +458,7 @@ const Orders = () => {
                         </div>
                         <div className="flex flex-col items-center gap-1">
                             <QRCodeSVG
-                                value={getVerifyUrl(`order-${invoiceOrder?.id_pedido || 'preview'}`)}
+                                value={getVerifyUrl(invoiceOrder?.verifyToken || `order-${invoiceOrder?.id_pedido || 'preview'}`)}
                                 size={100}
                                 bgColor="#ffffff"
                                 fgColor="#0D1712"

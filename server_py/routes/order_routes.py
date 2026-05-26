@@ -119,8 +119,15 @@ async def create_order(body: CreateOrderBody, user: dict = Depends(get_current_u
         }
     
     sync_document_to_supabase(f"order-{order_id}", "invoice", payload)
+    
+    # Generate token so QR can work offline/immediately
+    verify_token = create_verification_token(f"order-{order_id}", "invoice", payload)
 
-    return {"id_pedido": order_id, "message": "Order processed successfully"}
+    return {
+        "id_pedido": order_id, 
+        "message": "Order processed successfully",
+        "verifyToken": verify_token
+    }
 
 
 # ── GET /history ─────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { assetUrl } from '../utils/assetUrl';
@@ -22,9 +23,10 @@ import {
 const Sidebar = () => {
     const { user, logout } = useAuth();
     const { isDarkMode, toggleTheme } = useTheme();
+    const { t } = useLanguage();
     const [isOpen, setIsOpen] = React.useState(false);
     const containerRef = React.useRef();
-    const roleLabel = user?.rol === 'admin' ? 'Administrador' : 'No admin';
+    const roleLabel = user?.rol === 'admin' ? t('role.admin') : t('role.notAdmin');
 
     useGSAP(() => {
         gsap.from(".nav-anim", {
@@ -38,14 +40,14 @@ const Sidebar = () => {
     }, { scope: containerRef });
 
     const navItems = [
-        { name: 'Panel Principal', path: '/dashboard', icon: LayoutDashboard },
-        { name: 'Asistente Jud', path: '/chatbot', icon: MessageSquare, special: true },
-        { name: 'Inventario', path: '/inventory', icon: Package },
-        { name: 'Proyectos', path: '/projects', icon: FolderKanban },
-        { name: 'Analíticas', path: '/analytics', icon: BarChart3 },
-        { name: 'Reportes', path: '/reports', icon: FileText },
-        { name: 'Órdenes', path: '/orders', icon: ShoppingCart },
-        { name: 'Configuración', path: '/settings', icon: Settings },
+        { name: t('sidebar.dashboard'), path: '/dashboard', icon: LayoutDashboard },
+        { name: t('sidebar.assistant'), path: '/chatbot', icon: MessageSquare, special: true },
+        { name: t('sidebar.inventory'), path: '/inventory', icon: Package },
+        { name: t('sidebar.projects'), path: '/projects', icon: FolderKanban },
+        { name: t('sidebar.analytics'), path: '/analytics', icon: BarChart3 },
+        { name: t('sidebar.reports'), path: '/reports', icon: FileText },
+        { name: t('sidebar.orders'), path: '/orders', icon: ShoppingCart },
+        { name: t('sidebar.settings'), path: '/settings', icon: Settings },
     ];
 
     return (
@@ -80,7 +82,7 @@ const Sidebar = () => {
                 <button
                     onClick={toggleTheme}
                     className="w-8 h-8 rounded-lg bg-forest-elevated border border-leaf-900/30 flex items-center justify-center text-leaf-400 hover:text-white transition-all"
-                    title={isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+                    title={isDarkMode ? t('sidebar.darkMode') : t('sidebar.lightMode')}
                 >
                     {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
                 </button>
@@ -89,7 +91,7 @@ const Sidebar = () => {
             <nav className="flex-1 relative z-10 overflow-y-auto px-6 py-4">
                 <ul className="space-y-2">
                     {navItems.map((item) => (
-                        <li key={item.name}>
+                        <li key={item.path}>
                             <NavLink 
                                 to={item.path}
                                 className={({ isActive }) => 
@@ -114,13 +116,13 @@ const Sidebar = () => {
 
             <div className="pt-8 border-t border-leaf-900/30 relative z-10">
                 <div className="bg-forest-elevated/50 p-5 rounded-[24px] border border-leaf-900/30 mb-6 group hover:border-leaf-400/30 transition-all">
-                    <p className="text-[10px] font-black text-leaf-400/40 uppercase tracking-widest mb-3">Socio Ambiental</p>
+                    <p className="text-[10px] font-black text-leaf-400/40 uppercase tracking-widest mb-3">{t('sidebar.partner')}</p>
                     <div className="flex items-center gap-4">
                         <div className="w-10 h-10 bg-leaf-400 text-forest-void rounded-xl flex items-center justify-center font-black text-sm shadow-glow transition-transform group-hover:scale-105">
                             {user?.nombre?.charAt(0).toUpperCase() || 'U'}
                         </div>
                         <div className="overflow-hidden">
-                            <p className="text-[13px] font-black text-text-primary truncate leading-tight mb-1">{user?.nombre || 'Explorador'}</p>
+                            <p className="text-[13px] font-black text-text-primary truncate leading-tight mb-1">{user?.nombre || t('sidebar.explorer')}</p>
                             <span className="px-2 py-0.5 rounded-full bg-leaf-400/10 border border-leaf-400/30 text-[9px] font-black text-leaf-400 uppercase tracking-widest whitespace-nowrap">
                                 {roleLabel}
                             </span>
@@ -133,7 +135,7 @@ const Sidebar = () => {
                     className="flex items-center gap-4 p-4 w-full rounded-2xl hover:bg-red-500/10 text-red-400/60 hover:text-red-400 transition-all duration-300 group"
                 >
                     <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
-                    <span className="text-[11px] font-black uppercase tracking-widest">Cerrar Sesión</span>
+                    <span className="text-[11px] font-black uppercase tracking-widest">{t('sidebar.logout')}</span>
                 </button>
             </div>
         </aside>

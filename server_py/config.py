@@ -11,10 +11,12 @@ def get_env_var(name, fallback=""):
     return val
 
 # ── Security: JWT_SECRET MUST be set via .env ──
+# If you are seeing 'Invalid Token' on Vercel, make sure this secret 
+# matches the one configured in your Vercel Environment Variables.
 _jwt = os.getenv("JWT_SECRET", "")
 if not _jwt:
-    # If .env failed to load, provide a fallback for offline executable
-    _jwt = "clearpath_offline_secret_key_123_xyz"
+    # Use a predictable but unique fallback for this project
+    _jwt = "clearpath_jud_secure_fallback_2026_x99"
 JWT_SECRET = _jwt
 
 GROQ_API_KEY = get_env_var("GROQ_API_KEY", "")

@@ -153,7 +153,9 @@ async def verify_document_token(token: str):
     import logging
 
     try:
+        logging.info(f"Decoding verification token (Len: {len(token)})")
         data = decode_verification_token(token)
+        logging.info(f"Token decoded for ID: {data.get('id')}")
         return {
             "id": data.get("id"), 
             "tipo": data.get("tipo"), 
@@ -161,8 +163,10 @@ async def verify_document_token(token: str):
             "source": "cryptographic_token"
         }
     except Exception as e:
-        logging.warning(f"Verification token decode failed: {e}")
-        raise HTTPException(status_code=400, detail="Token de verificación inválido o expirado.")
+        logging.error(f"Verification token FAILED: {str(e)}")
+        # If the secret is different, it will fail here. 
+        # On Vercel, ensure JWT_SECRET is set to match the local environment.
+        raise HTTPException(status_code=404, detail="Token de verificación inválido o expirado.")
 
 
 @app.get("/api/verify/{report_id}")

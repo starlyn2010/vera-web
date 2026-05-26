@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Leaf, Lock, User, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import gsap from 'gsap';
@@ -10,6 +11,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const { login } = useAuth();
+    const { t } = useLanguage();
     const navigate = useNavigate();
     const [isSuccess, setIsSuccess] = useState(false);
     const containerRef = React.useRef();
@@ -24,8 +26,33 @@ const Login = () => {
         });
     }, { scope: containerRef });
 
+    const [checkingConnection, setCheckingConnection] = useState(true);
+    const [connectionError, setConnectionError] = useState(false);
+
+    useEffect(() => {
+        const checkBackend = async () => {
+            try {
+                // Quick check to the health endpoint
+                await axios.get('http://127.0.0.1:5000/api/health', { timeout: 2000 });
+                setCheckingConnection(false);
+                setConnectionError(false);
+            } catch (err) {
+                console.warn("Backend not ready yet, retrying in 2s...");
+                setConnectionError(true);
+                // Retry after 2 seconds
+                setTimeout(checkBackend, 2000);
+            }
+        };
+
+        checkBackend();
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (connectionError) {
+            setError('El backend no responde. Por favor, espera a que se inicie completamente.');
+            return;
+        }
         try {
             await login(username, password);
             setIsSuccess(true);
@@ -59,14 +86,14 @@ const Login = () => {
             >
                 <div className="text-center mb-12">
                     <img src="/logo.png" className="mx-auto w-16 h-16 rounded-2xl mb-6 object-cover border border-leaf-400/20 shadow-glow" alt="Clear Path Logo" />
-                    <p className="text-[10px] uppercase tracking-[0.4em] text-leaf-400/60 font-bold mb-2">Plataforma Clear Path</p>
-                    <h1 className="text-4xl font-display font-bold text-white">Bienvenido de nuevo</h1>
-                    <p className="text-sm text-text-secondary mt-3">Ingresa tus credenciales para acceder al bio-sistema.</p>
+                    <p className="text-[10px] uppercase tracking-[0.4em] text-leaf-400/60 font-bold mb-2">{t('login.platform')}</p>
+                    <h1 className="text-4xl font-display font-bold text-white">{t('login.welcome')}</h1>
+                    <p className="text-sm text-text-secondary mt-3">{t('login.subtitle')}</p>
                 </div>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-leaf-400/80 uppercase tracking-widest ml-1">Usuario</label>
+                        <label className="text-[11px] font-bold text-leaf-400/80 uppercase tracking-widest ml-1">{t('login.username')}</label>
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-text-tertiary group-focus-within:text-leaf-400 transition-colors">
                                 <User size={18} />
@@ -83,7 +110,7 @@ const Login = () => {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-leaf-400/80 uppercase tracking-widest ml-1">Contraseña</label>
+                        <label className="text-[11px] font-bold text-leaf-400/80 uppercase tracking-widest ml-1">{t('login.password')}</label>
                         <div className="relative group">
                             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-text-tertiary group-focus-within:text-leaf-400 transition-colors">
                                 <Lock size={18} />
@@ -116,11 +143,11 @@ const Login = () => {
                         {isSuccess ? (
                             <>
                                 <CheckCircle2 size={18} className="animate-bounce" />
-                                Acceso Concedido
+                                {t('common.success')}
                             </>
                         ) : (
                             <>
-                                Acceder al Sistema
+                                {t('login.submit')}
                                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                             </>
                         )}
@@ -129,7 +156,7 @@ const Login = () => {
                 
                 <div className="mt-10 text-center">
                     <p className="text-xs text-text-tertiary">
-                        ¿No tienes una cuenta? <Link to="/register" className="text-leaf-400 font-bold hover:underline">Regístrate gratis</Link>
+                        {t('login.noAccount')} <Link to="/register" className="text-leaf-400 font-bold hover:underline">{t('login.register')}</Link>
                     </p>
                 </div>
             </div>
