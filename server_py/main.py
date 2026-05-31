@@ -30,21 +30,35 @@ stream_handler.setFormatter(log_formatter)
 logger.addHandler(stream_handler)
 
 if not is_vercel:
-    # Create logs directory if it doesn't exist
-    logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+    # Create logs directory
+    if getattr(sys, 'frozen', False):
+        # Use APPDATA for logs when running as EXE
+        appdata = os.getenv('APPDATA')
+        if appdata:
+            logs_dir = os.path.join(appdata, "ClearPath", "logs")
+        else:
+            logs_dir = os.path.join(os.path.dirname(sys.executable), "logs")
+    else:
+        # Development logs
+        logs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "logs")
+
     if not os.path.exists(logs_dir):
         try:
             os.makedirs(logs_dir)
         except:
-            logs_dir = os.path.dirname(__file__)
+            # Fallback to current directory if all fails
+            logs_dir = "."
 
     log_file = os.path.join(logs_dir, "server_py.log")
     from logging.handlers import RotatingFileHandler
     # Max 5MB per file, keep 3 backups
-    file_handler = RotatingFileHandler(log_file, maxBytes=5*1024*1024, backupCount=3)
-    file_handler.setFormatter(log_formatter)
-    logger.addHandler(file_handler)
-    logging.info(f"Backend starting... (Logs: {log_file})")
+    try:
+        file_handler = RotatingFileHandler(log_file, maxBytes=5*1024*1024, backupCount=3)
+        file_handler.setFormatter(log_formatter)
+        logger.addHandler(file_handler)
+        logging.info(f"Backend starting... (Logs: {log_file})")
+    except Exception as e:
+        logging.error(f"Could not create log file: {e}")
 else:
     logging.info("Backend starting on Vercel (Stdout only)")
 

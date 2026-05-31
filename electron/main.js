@@ -1,6 +1,7 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
+const fs = require('fs');
 const isDev = process.env.NODE_ENV === 'development';
 
 let mainWindow;
@@ -15,26 +16,27 @@ function startServer() {
     let command, args, cwd;
 
     if (isDev) {
-        // Development: use Python directly
         const serverPath = path.join(__dirname, '../server_py/main.py');
         command = process.platform === 'win32' ? 'py' : 'python3';
         args = process.platform === 'win32' ? ['-3', serverPath] : [serverPath];
         cwd = path.join(__dirname, '../server_py');
     } else {
-        // Production: use compiled exe from PyInstaller
-        const exePath = path.join(process.resourcesPath, 'server_py', 'dist', 'clearpath_server.exe');
-        if (!require('fs').existsSync(exePath)) {
-            console.error(`CRITICAL ERROR: Backend executable not found at: ${exePath}`);
-            // Fallback to resources dir if dist is missing
-            const altPath = path.join(process.resourcesPath, 'clearpath_server.exe');
-            if (require('fs').existsSync(altPath)) {
-                command = altPath;
-            } else {
-                command = exePath; // will fail but we logged the error
-            }
-        } else {
-            command = exePath;
+        // Updated path logic for production
+        const possiblePaths = [
+            path.join(process.resourcesPath, 'server_py', 'dist', 'clearpath_server.exe'),
+            path.join(process.resourcesPath, 'clearpath_server.exe'),
+            path.join(path.dirname(process.execPath), 'resources', 'server_py', 'dist', 'clearpath_server.exe')
+        ];
+
+        command = possiblePaths.find(p => fs.existsSync(p));
+
+        if (!command) {
+            const errorMsg = `CRITICAL: Backend executable not found.\nPaths searched:\n${possiblePaths.join('\n')}`;
+            console.error(errorMsg);
+            dialog.showErrorBox('Error de Inicio', errorMsg);
+            return;
         }
+        
         args = [];
         cwd = path.dirname(command);
     }
@@ -45,20 +47,13 @@ function startServer() {
         env: { ...process.env, PORT: '5000' }
     });
 
-    serverProcess.stdout.on('data', (data) => {
-        console.log(`Backend Log: ${data}`);
+    serverProcess.on('error', (err) => {
+        console.error('CRITICAL: Failed to spawn backend:', err);
+        dialog.showErrorBox('Error de Servidor', `No se pudo iniciar el backend:\n${err.message}`);
     });
 
     serverProcess.stderr.on('data', (data) => {
-        console.error(`Backend Error: ${data}`);
-    });
-
-    serverProcess.on('error', (err) => {
-        console.error('CRITICAL: Failed to start backend:', err);
-    });
-
-    serverProcess.on('exit', (code, signal) => {
-        console.log(`Backend process exited with code ${code} and signal ${signal}`);
+        console.error(`Backend Stderr: ${data}`);
     });
 }
 

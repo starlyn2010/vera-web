@@ -6,11 +6,19 @@ echo      DESPLIEGUE CLEAR PATH - MODO ESCRITORIO
 echo ====================================================
 echo.
 
+:: Verificacion rapida de entorno
+node -v >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [ERROR] 'npm' o 'node' no detectados. Ejecuta SETUP_NUEVA_PC.bat primero.
+    pause
+    exit /b 1
+)
+
 :: 1. Verificacion de dependencias
 echo [1/4] Verificando dependencias...
-if not exist "node_modules\" npm install
+if not exist "node_modules\" call npm install
 if not exist "client\node_modules\" (
-    cd client && npm install && cd ..
+    cd client && call npm install && cd ..
 )
 
 :: 2. Construir Frontend
@@ -29,7 +37,7 @@ echo [3/4] Iniciando Backend (Python)...
 if exist "server_py\venv\Scripts\python.exe" (
     start /min "Clear Path - Backend" cmd /c "cd server_py && venv\Scripts\python.exe main.py"
 ) else (
-    start /min "Clear Path - Backend" cmd /c "cd server_py && python main.py || py -3 main.py"
+    start /min "Clear Path - Backend" cmd /c "cd server_py && (python main.py || py -3 main.py)"
 )
 
 :: Esperar a que el backend suba
@@ -48,7 +56,7 @@ if not exist "node_modules\electron\dist\electron.exe" (
 
 call npx electron .
 if %errorlevel% neq 0 (
-    echo [ERROR] No se pudo iniciar Electron. Asegurate de que 'npm install' se completo correctamente.
+    echo [ERROR] No se pudo iniciar Electron.
     pause
 )
 

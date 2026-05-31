@@ -1,10 +1,12 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Leaf, Lock, User, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import axios from 'axios';
+import { assetUrl } from '../utils/assetUrl';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -85,7 +87,7 @@ const Login = () => {
                 className="glass p-12 rounded-[40px] shadow-2xl w-full max-w-lg border border-leaf-900/30 relative z-10 login-card login-anim"
             >
                 <div className="text-center mb-12">
-                    <img src="/logo.png" className="mx-auto w-16 h-16 rounded-2xl mb-6 object-cover border border-leaf-400/20 shadow-glow" alt="Clear Path Logo" />
+                    <img src={assetUrl('/logo.png')} className="mx-auto w-16 h-16 rounded-2xl mb-6 object-cover border border-leaf-400/20 shadow-glow" alt="Clear Path Logo" />
                     <p className="text-[10px] uppercase tracking-[0.4em] text-leaf-400/60 font-bold mb-2">{t('login.platform')}</p>
                     <h1 className="text-4xl font-display font-bold text-white">{t('login.welcome')}</h1>
                     <p className="text-sm text-text-secondary mt-3">{t('login.subtitle')}</p>
