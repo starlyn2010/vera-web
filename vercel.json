@@ -2,14 +2,6 @@
   "version": 2,
   "buildCommand": "npm run build:vercel",
   "outputDirectory": "client/dist",
-  "functions": {
-    "api/index.py": {
-      "includeFiles": [
-        "server_py/**",
-        "database/**"
-      ]
-    }
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
