@@ -2,12 +2,11 @@
   "version": 2,
   "buildCommand": "npm run build:vercel",
   "outputDirectory": "client/dist",
-  "framework": "vite",
   "functions": {
     "api/index.py": {
       "includeFiles": [
-        "../database/**",
-        "../server_py/**"
+        "server_py/**",
+        "database/**"
       ]
     }
   },
@@ -22,4 +21,3 @@
     }
   ]
 }
-
