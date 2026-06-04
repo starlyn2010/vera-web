@@ -5,13 +5,16 @@
   "framework": "vite",
   "functions": {
     "api/index.py": {
-      "includeFiles": "{database/**,server_py/**}"
+      "includeFiles": [
+        "database/**",
+        "server_py/**"
+      ]
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.py"
+      "destination": "api/index.py"
     },
     {
       "source": "/(.*)",
