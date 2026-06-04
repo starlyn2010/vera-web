@@ -1,4 +1,5 @@
 fastapi
+uvicorn[standard]
 python-jose[cryptography]
 passlib[bcrypt]
 bcrypt
@@ -6,3 +7,4 @@ python-dotenv
 groq
 pydantic
 python-multipart
+aiosqlite

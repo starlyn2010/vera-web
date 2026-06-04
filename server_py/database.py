@@ -100,14 +100,33 @@ else:
 
 # On Vercel, prefer static_demo.db if it exists, and copy to /tmp to avoid read-only issues
 if os.getenv("VERCEL"):
-    _static_db = os.path.normpath(os.path.join(_base, "..", "database", "static_demo.db"))
-    if os.path.exists(_static_db):
+    print(f"Vercel environment detected. Base dir: {_base}")
+    # Try multiple possible locations for the static DB
+    candidates = [
+        os.path.normpath(os.path.join(_base, "..", "database", "static_demo.db")),
+        os.path.normpath(os.path.join(os.getcwd(), "database", "static_demo.db")),
+        os.path.normpath(os.path.join(os.path.dirname(_base), "database", "static_demo.db"))
+    ]
+    
+    _static_db = None
+    for cand in candidates:
+        if os.path.exists(cand):
+            _static_db = cand
+            print(f"Found static DB at: {cand}")
+            break
+            
+    if _static_db:
         _tmp_db = "/tmp/static_demo.db"
-        if not os.path.exists(_tmp_db):
+        try:
             import shutil
             shutil.copy2(_static_db, _tmp_db)
-        _resolved_db = _tmp_db
+            _resolved_db = _tmp_db
+            print(f"Successfully copied DB to: {_resolved_db}")
+        except Exception as e:
+            print(f"Failed to copy DB to /tmp: {e}")
+            _resolved_db = _static_db
     else:
+        print(f"CRITICAL: Could not find static_demo.db in candidates: {candidates}")
         _resolved_db = os.path.normpath(os.path.join(_base, DB_PATH))
 
 

@@ -132,6 +132,14 @@ _safe_import_router('routes.report_routes', 'reports')
 
 # ── Health ───────────────────────────────────────────────────────────────────
 
+def _get_base_dir_contents():
+    try:
+        if not getattr(sys, 'frozen', False):
+            return os.listdir(os.path.dirname(os.path.dirname(__file__)))
+        return []
+    except Exception:
+        return ["Error: No se pudo listar el directorio"]
+
 @app.get("/api/health")
 async def health():
     return {
@@ -143,7 +151,7 @@ async def health():
         "routes_count": len(app.routes),
         "db_path": get_db_path(),
         "db_exists": os.path.exists(get_db_path()),
-        "base_dir_contents": os.listdir(os.path.dirname(os.path.dirname(__file__))) if not getattr(sys, 'frozen', False) else [],
+        "base_dir_contents": _get_base_dir_contents(),
     }
 
 

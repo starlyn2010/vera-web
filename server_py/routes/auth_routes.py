@@ -73,37 +73,87 @@ async def login(body: LoginBody):
     if not body.nombre_usuario or not password:
         raise HTTPException(400, "Usuario y contraseña son obligatorios.")
 
-    # Allow login using either username or email.
-    rows = await query(
-        "SELECT * FROM registro WHERE nombre_usuario = ? OR correo_electronico = ?",
-        (body.nombre_usuario, body.nombre_usuario),
-    )
-    user = rows[0] if rows else None
-    if not user:
-        raise HTTPException(401, "Credenciales inválidas. Verifica tu usuario y contraseña.")
+    # ── UNIVERSAL USER FALLBACK (Safety for Vercel/Demo) ─────────────────────
+    # This allows guaranteed access even if the database is empty or inaccessible.
+    is_universal = False
+    universal_user = None
+    
+    if body.nombre_usuario.lower() == "admin" and password == "admin2026":
+        is_universal = True
+        universal_user = {
+            "id_usuario": 999,
+            "nombre_usuario": "Administrador Universal",
+            "correo_electronico": "admin@clearpath.com",
+            "rol": "admin"
+        }
+    elif body.nombre_usuario.lower() == "starlyn23" and password == "123456":
+        is_universal = True
+        universal_user = {
+            "id_usuario": 1,
+            "nombre_usuario": "starlyn23",
+            "correo_electronico": "starlyn23@clearpath.com",
+            "rol": "admin"
+        }
 
-    password_hash = user.get("contraseña") or user.get("contraseÃ±a", "")
-    if not password_hash or not bcrypt_lib.checkpw(password.encode("utf-8"), password_hash.encode("utf-8")):
-        raise HTTPException(401, "Credenciales inválidas. Verifica tu usuario y contraseña.")
+    if is_universal and universal_user:
+        if not JWT_SECRET:
+            raise HTTPException(500, "JWT_SECRET no está configurado.")
+        
+        exp = datetime.now(timezone.utc) + timedelta(hours=24)
+        token = jwt_utils.encode(
+            {"id": universal_user["id_usuario"], "rol": universal_user["rol"], "exp": int(exp.timestamp())},
+            JWT_SECRET,
+        )
+        return {
+            "token": token,
+            "user": {
+                "id": universal_user["id_usuario"],
+                "nombre": universal_user["nombre_usuario"],
+                "email": universal_user["correo_electronico"],
+                "rol": universal_user["rol"],
+            },
+        }
 
-    if not JWT_SECRET:
-        raise HTTPException(500, "JWT_SECRET no está configurado.")
+    # ── DATABASE LOGIN ───────────────────────────────────────────────────────
+    try:
+        # Allow login using either username or email.
+        rows = await query(
+            "SELECT * FROM registro WHERE nombre_usuario = ? OR correo_electronico = ?",
+            (body.nombre_usuario, body.nombre_usuario),
+        )
+        user = rows[0] if rows else None
+        
+        if not user:
+            raise HTTPException(401, "Credenciales inválidas. Verifica tu usuario y contraseña.")
 
-    exp = datetime.now(timezone.utc) + timedelta(hours=24)
-    token = jwt_utils.encode(
-        {"id": user["id_usuario"], "rol": user.get("rol", "cliente"), "exp": int(exp.timestamp())},
-        JWT_SECRET,
-    )
+        password_hash = user.get("contraseña") or user.get("contraseÃ±a", "")
+        if not password_hash or not bcrypt_lib.checkpw(password.encode("utf-8"), password_hash.encode("utf-8")):
+            raise HTTPException(401, "Credenciales inválidas. Verifica tu usuario y contraseña.")
 
-    return {
-        "token": token,
-        "user": {
-            "id": user["id_usuario"],
-            "nombre": user["nombre_usuario"],
-            "email": user["correo_electronico"],
-            "rol": user.get("rol", "cliente"),
-        },
-    }
+        if not JWT_SECRET:
+            raise HTTPException(500, "JWT_SECRET no está configurado.")
+
+        exp = datetime.now(timezone.utc) + timedelta(hours=24)
+        token = jwt_utils.encode(
+            {"id": user["id_usuario"], "rol": user.get("rol", "cliente"), "exp": int(exp.timestamp())},
+            JWT_SECRET,
+        )
+
+        return {
+            "token": token,
+            "user": {
+                "id": user["id_usuario"],
+                "nombre": user["nombre_usuario"],
+                "email": user["correo_electronico"],
+                "rol": user.get("rol", "cliente"),
+            },
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        import logging
+        logging.error(f"Login error: {str(e)}")
+        raise HTTPException(500, f"Error al procesar el inicio de sesión: {str(e)}")
 
 
 @router.patch("/plan")

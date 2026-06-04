@@ -1,1 +1,1 @@
-"""Services package for Clear Path Backend."""
+# Package marker

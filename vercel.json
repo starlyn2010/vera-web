@@ -5,7 +5,7 @@
   "framework": "vite",
   "functions": {
     "api/index.py": {
-      "includeFiles": "database/**"
+      "includeFiles": "{database/**,server_py/**}"
     }
   },
   "rewrites": [
